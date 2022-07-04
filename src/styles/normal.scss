@@ -1,0 +1,129 @@
+.flex {
+    display: flex;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.jc-between {
+    justify-content: space-between;
+}
+
+.jc-center {
+    justify-content: center;
+}
+
+.jc-end {
+    justify-content: flex-end;
+}
+
+.ai-start {
+    align-items: flex-start;
+}
+
+.ai-center {
+    align-items: center;
+}
+
+.ai-normal {
+    align-items: normal;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.text-align-left {
+    text-align: left;
+}
+
+.text-align-right {
+    text-align: right;
+}
+
+.text-align-center {
+    text-align: center;
+}
+
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.overflow-hidden {
+    overflow: hidden
+}
+
+.h-100 {
+    height: 100%;
+}
+
+
+
+/* 设置滚动条的样式 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+/* 滚动槽 */
+::-webkit-scrollbar-track {
+    box-shadow: inset006pxrgba(0,0,0,0.3);
+    -webkit-box-shadow: inset006pxrgba(0,0,0,0.3);
+    border-radius: 4px;
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: rgba(0,0,0,0.1);
+    box-shadow: inset006pxrgba(0,0,0,0.5);
+    -webkit-box-shadow: inset006pxrgba(0,0,0,0.5);
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(0,0,0,0.1);
+}
+
+* {
+    scrollbar-arrow-color: rgba(0,0,0,0.1); /*三角箭头的颜色*/
+    scrollbar-face-color: rgba(0,0,0,0.1); /*立体滚动条的颜色（包括箭头部分的背景色）*/
+    scrollbar-3dlight-color: rgba(0,0,0,0.1); /*立体滚动条亮边的颜色*/
+    scrollbar-highlight-color: rgba(0,0,0,0.1); /*滚动条的高亮颜色（左阴影？）*/
+    scrollbar-shadow-color: rgba(0,0,0,0.1); /*立体滚动条阴影的颜色*/
+    scrollbar-darkshadow-color: rgba(0,0,0,0.1); /*立体滚动条外阴影的颜色*/
+    scrollbar-track-color: rgba(0,0,0,0.1); /*立体滚动条背景颜色*/
+    scrollbar-base-color: rgba(0,0,0,0.1); /*滚动条的基色*/
+}
+
+
+
+.content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .searchForm {
+        text-align: left;
+    }
+
+    .cont {
+        flex: 1;
+        padding-bottom: 20px;
+    }
+    .pager {
+        margin: 20px 0;
+        justify-content: flex-end;
+    }
+}

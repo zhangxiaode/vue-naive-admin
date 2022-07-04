@@ -1,0 +1,406 @@
+<template>
+  <div class="activity-new">
+    <el-form
+      ref="newRef"
+      :model="newForm"
+      :rules="newRules"
+      label-width="180px"
+      :size="ref('large')"
+      :label-position="ref('right')"
+      class="newForm"
+    >
+      <el-form-item label="活动名称：" prop="title">
+        <el-input
+          v-model="newForm.title"
+          :style="{
+            width: '370px',
+          }"
+          placeholder="请输入活动名称"
+        />
+      </el-form-item>
+      <el-form-item label="活动开始时间：" prop="start_time">
+        <el-date-picker
+          :disabled="state == 1 || state == 2"
+          v-model="newForm.start_time"
+          type="datetime"
+          placeholder="请选择开始时间"
+          value-format="YYYY-MM-DD HH:mm:ss"
+        />
+      </el-form-item>
+      <el-form-item label="活动结束时间：" prop="end_time">
+        <el-date-picker
+          :disabled="state == 2"
+          v-model="newForm.end_time"
+          type="datetime"
+          placeholder="请选择结束时间"
+          value-format="YYYY-MM-DD HH:mm:ss"
+        />
+      </el-form-item>
+      <el-form-item label="核销截止时间：" prop="last_verify_destroy_time">
+        <el-date-picker
+          :disabled="state == 2"
+          v-model="newForm.last_verify_destroy_time"
+          type="datetime"
+          placeholder="请选择结束时间"
+          value-format="YYYY-MM-DD HH:mm:ss"
+        />
+      </el-form-item>
+      <el-form-item label="抽奖人数上限：" prop="max_user_num">
+        <el-input
+          :disabled="state == 1 || state == 2"
+          v-model="newForm.max_user_num"
+          placeholder="请输入抽奖人数上限"
+        />
+      </el-form-item>
+      <el-form-item label="封面图：" prop="cover_images">
+        <el-upload
+          :disabled="state == 1 || state == 2"
+          class="avatar-uploader"
+          action="http://upload.qiniup.com"
+          :headers="headers"
+          list-type="picture-card"
+          multiple
+          :on-preview="handlePictureCardPreview"
+          :on-remove="handleRemove"
+          :file-list="fileList"
+          :data="uploadData"
+          :before-upload="beforePictureUpload"
+          :on-success="handlePictureSuccess"
+        >
+          <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
+        </el-upload>
+        <el-alert
+          class="warning"
+          title="为保证最终效果，请上传长宽比为1:1，1M以内的素材图"
+          type="success"
+          :closable="false"
+        />
+      </el-form-item>
+      <el-form-item
+        v-for="(award, index) in newForm.awards"
+        :key="'awards.' + index + '.num'"
+        :label="`奖品${index + 1}`"
+        :prop="'awards.' + index + '.num'"
+      >
+        <div class="flex ai-center">
+          <el-input
+            :disabled="state == 1 || state == 2"
+            v-model="award.name"
+            placeholder="奖品名称"
+          />
+          <el-input
+            :disabled="state == 1 || state == 2"
+            class="m-0-5"
+            v-model="award.num"
+            placeholder="设置奖品份数"
+          />
+          <span>份</span>
+          <el-button
+            :disabled="state == 1 || state == 2"
+            v-if="newForm.awards.length > 1"
+            class="m-0-5"
+            @click.prevent="removeAward(index)"
+          >
+            删除
+          </el-button>
+          <el-button
+            :disabled="state == 1 || state == 2"
+            v-if="newForm.awards.length - 1 === index"
+            class="m-0-5"
+            @click.prevent="addAward()"
+          >
+            新增
+          </el-button>
+        </div>
+      </el-form-item>
+      <el-form-item label="向用户展示奖品份数：" prop="is_show_award_num">
+        <el-switch
+          :disabled="state == 1 || state == 2"
+          v-model="newForm.is_show_award_num"
+          :active-value="1"
+          :inactive-value="0"
+        />
+      </el-form-item>
+      <el-form-item label="图文介绍（选填）：" prop="introduce_type">
+        <div class="flex flex-column ai-normal">
+          <el-radio-group v-model="newForm.introduce_type">
+            <el-radio :label="1">文字</el-radio>
+            <el-radio :label="2">图片</el-radio>
+          </el-radio-group>
+          <div>
+            <el-input
+              v-if="newForm.introduce_type === 1"
+              v-model="newForm.content"
+              :rows="3"
+              type="textarea"
+              placeholder="请输入文字介绍"
+            />
+            <el-upload
+              v-else
+              class="avatar-uploader"
+              action="http://upload.qiniup.com"
+              :data="uploadData"
+              :show-file-list="false"
+              :before-upload="beforeAvatarUpload"
+              :on-success="handleAvatarSuccess"
+            >
+              <img
+                v-if="newForm.pictures && newForm.pictures != ''"
+                :src="newForm.pictures"
+                class="avatar"
+              />
+              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+            </el-upload>
+          </div>
+        </div>
+      </el-form-item>
+      <el-form-item class="btns">
+        <el-button @click="onCancel()">取消</el-button>
+        <el-button type="primary" @click="onSubmit(newRef)">保存</el-button>
+      </el-form-item>
+    </el-form>
+    <el-dialog v-model="dialogVisible" fullscreen>
+      <img w-full :src="dialogImageUrl" alt="Preview Image" />
+    </el-dialog>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { reactive, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { ElMessage } from "element-plus";
+import type { FormInstance, UploadProps, FormRules } from "element-plus";
+import { Plus } from "@element-plus/icons-vue";
+import {
+  getUploadToken,
+  getActivityDetail,
+  createActivity,
+  putActivity,
+} from "@/apis/index";
+const router = useRouter();
+const route = useRoute();
+
+interface AwardItem {
+  name: string;
+  num: number;
+}
+const newRef = ref<FormInstance>();
+const uploadData = ref({
+  token: "",
+  key: "",
+});
+const fileList = ref([]);
+const headers = reactive({
+  token: localStorage.getItem("token"),
+});
+const newForm = reactive({
+  title: "",
+  start_time: "",
+  end_time: "",
+  last_verify_destroy_time: "",
+  max_user_num: "",
+  cover_images: [],
+  awards: [
+    {
+      id: 0,
+      name: "",
+      num: 0,
+    },
+  ],
+  is_show_award_num: 0,
+  introduce_type: 1,
+  content: "",
+  pictures: "",
+});
+const state = ref(0);
+const dialogImageUrl = ref("");
+const dialogVisible = ref(false);
+
+const newRules = reactive<FormRules>({
+  title: [
+    { required: true, message: "活动名称不能为空", trigger: "blur change" },
+  ],
+  start_time: [
+    { required: true, message: "活动开始时间不能为空", trigger: "blur change" },
+  ],
+  end_time: [
+    { required: true, message: "活动结束时间不能为空", trigger: "blur change" },
+  ],
+  last_verify_destroy_time: [
+    { required: true, message: "核销截止时间不能为空", trigger: "blur change" },
+  ],
+  max_user_num: [
+    { required: true, message: "抽奖人数上限不能为空", trigger: "blur change" },
+    {
+      pattern: /^[0-9]*$/,
+      message: "抽奖人数上限只能为数字",
+      trigger: "blur change",
+    },
+  ],
+  cover_images: [
+    { required: true, message: "封面图不能为空", trigger: "blur change" },
+  ],
+});
+const handleRemove: UploadProps["onRemove"] = () => {
+  newForm.cover_images = fileList.value.map((item: any) =>
+    item.percentage
+      ? "https://ommdq027l.qnssl.com/" + item.response.key
+      : item.url
+  ) as any;
+};
+
+const handlePictureCardPreview: UploadProps["onPreview"] = (uploadFile) => {
+  dialogImageUrl.value = uploadFile.url!;
+  dialogVisible.value = true;
+};
+const addAward = () => {
+  newForm.awards.push({
+    id: 0,
+    name: "",
+    num: 0,
+  });
+};
+const removeAward = (index: number) => {
+  if (index !== -1) {
+    newForm.awards.splice(index, 1);
+  }
+};
+
+const beforePictureUpload: UploadProps["beforeUpload"] = (rawFile) => {
+  uploadData.value.key = `${Math.random()
+    .toString(36)
+    .slice(-10)}_${Date.now()}_${rawFile.name}`;
+  if (rawFile.size / 1024 / 1024 > 1) {
+    ElMessage.error("图片应在1MB以内!");
+    return false;
+  }
+  return true;
+};
+const handlePictureSuccess: UploadProps["onSuccess"] = () => {
+  newForm.cover_images = fileList.value.map((item: any) =>
+    item.percentage
+      ? "https://ommdq027l.qnssl.com/" + item.response.key
+      : item.url
+  ) as any;
+};
+const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
+  uploadData.value.key = `${Math.random()
+    .toString(36)
+    .slice(-10)}_${Date.now()}_${rawFile.name}`;
+  return true;
+};
+const handleAvatarSuccess: UploadProps["onSuccess"] = (response) => {
+  newForm.pictures = "https://ommdq027l.qnssl.com/" + response.key;
+};
+
+const onCancel = () => {
+  window.close();
+};
+const onSubmit = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      if (newForm.awards.length === 0) {
+        ElMessage.error("请至少设置一份奖品");
+      } else {
+        let method = createActivity;
+        let params = JSON.parse(JSON.stringify(newForm));
+        if (route.query.id) {
+          method = putActivity;
+          params["id"] = route.query.id;
+        }
+        method(params).then(() => {
+          ElMessage.success("保存成功");
+          setTimeout(() => {
+            window.close();
+          }, 1000);
+        });
+      }
+    } else {
+      console.log("error submit!", fields);
+    }
+  });
+};
+const uploadToken = () => {
+  getUploadToken().then((res: any) => {
+    uploadData.value.token = res.token;
+  });
+};
+const getDetail = () => {
+  getActivityDetail({ id: route.query.id }).then((res: any) => {
+    state.value = res.state;
+    res.cover_images = JSON.parse(res.cover_images);
+    fileList.value = res.cover_images.map((item: string) => {
+      return {
+        url: item,
+      };
+    });
+    newForm.title = res.title;
+    newForm.start_time = res.start_time;
+    newForm.end_time = res.end_time;
+    newForm.last_verify_destroy_time = res.last_verify_destroy_time;
+    newForm.max_user_num = res.max_user_num;
+    newForm.cover_images = res.cover_images;
+    newForm.awards = res.awards;
+    newForm.is_show_award_num = res.is_show_award_num;
+    newForm.introduce_type = res.introduce_type;
+    newForm.content = res.content;
+    newForm.pictures = res.pictures;
+  });
+};
+const init = () => {
+  uploadToken();
+  if (route.query.id) {
+    getDetail();
+  }
+};
+init();
+</script>
+
+<style lang="scss" scoped>
+.activity-new {
+  height: 100%;
+  overflow: auto;
+  .newForm {
+    max-width: 800px;
+  }
+  .warning {
+    margin-top: 10px;
+  }
+  :deep(.el-form-item__content) {
+    flex: none;
+  }
+
+  :deep(.avatar-uploader) {
+    .el-upload {
+      border: 1px dashed var(--el-border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--el-transition-duration-fast);
+    }
+
+    .el-upload:hover {
+      border-color: var(--el-color-primary);
+    }
+
+    .el-icon.avatar-uploader-icon {
+      color: #8c939d;
+      width: 148px;
+      height: 148px;
+      text-align: center;
+      svg {
+        font-size: 28px;
+      }
+    }
+  }
+  .avatar {
+    width: 148px;
+    height: 148px;
+  }
+}
+.m-0-5 {
+  margin: 0 5px;
+}
+</style>

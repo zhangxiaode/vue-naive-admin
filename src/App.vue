@@ -1,19 +1,33 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
+  <n-config-provider :locale="zhCN" :date-locale="dateZhCN" class="h-100" >
+    <router-view />
+  </n-config-provider>
 </template>
 
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+<script lang="ts" setup>
+import { zhCN, dateZhCN } from 'naive-ui'
 </script>
 
-<style>
+<style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+nav {
+  padding: 30px;
+
+  a {
+    font-weight: bold;
+    color: #2c3e50;
+
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
 }
 </style>
+
