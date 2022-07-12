@@ -13,8 +13,8 @@
       :width="240"
       :collapsed="collapse"
       show-trigger
-      @collapse="collapsed = true"
-      @expand="collapsed = false"
+      @collapse="collapse = true"
+      @expand="collapse = false"
     >
       <n-menu
         :collapsed="collapse"

@@ -1,164 +1,124 @@
 <template>
   <div class="activity-new">
-    <el-form
+    <n-form
       ref="newRef"
       :model="newForm"
       :rules="newRules"
       label-width="180px"
       :size="ref('large')"
-      :label-position="ref('right')"
+      :label-placement="ref('right')"
       class="newForm"
     >
-      <el-form-item label="活动名称：" prop="title">
-        <el-input
-          v-model="newForm.title"
-          :style="{
-            width: '370px',
-          }"
-          placeholder="请输入活动名称"
-        />
-      </el-form-item>
-      <el-form-item label="活动开始时间：" prop="start_time">
-        <el-date-picker
-          :disabled="state == 1 || state == 2"
+      <n-form-item label="活动名称：" path="title">
+        <n-input v-model:value="newForm.title" :style="{width: '370px'}" placeholder="请输入活动名称" />
+      </n-form-item>
+      <n-form-item label="活动开始时间：" path="start_time">
+        <n-date-picker
+          :is-date-disabled="state == 1 || state == 2"
+          :is-time-disabled="state == 1 || state == 2"
           v-model="newForm.start_time"
           type="datetime"
           placeholder="请选择开始时间"
-          value-format="YYYY-MM-DD HH:mm:ss"
+          value-format="yyyy.MM.dd HH:mm:ss"
         />
-      </el-form-item>
-      <el-form-item label="活动结束时间：" prop="end_time">
-        <el-date-picker
-          :disabled="state == 2"
+      </n-form-item>
+      <n-form-item label="活动结束时间：" path="end_time">
+        <n-date-picker
+          :is-date-disabled="state == 2"
+          :is-time-disabled="state == 2"
           v-model="newForm.end_time"
           type="datetime"
           placeholder="请选择结束时间"
-          value-format="YYYY-MM-DD HH:mm:ss"
+          value-format="yyyy.MM.dd HH:mm:ss"
         />
-      </el-form-item>
-      <el-form-item label="核销截止时间：" prop="last_verify_destroy_time">
-        <el-date-picker
-          :disabled="state == 2"
+      </n-form-item>
+      <n-form-item label="核销截止时间：" path="last_verify_destroy_time">
+        <n-date-picker
+          :is-date-disabled="state == 2"
+          :is-time-disabled="state == 2"
           v-model="newForm.last_verify_destroy_time"
           type="datetime"
-          placeholder="请选择结束时间"
-          value-format="YYYY-MM-DD HH:mm:ss"
+          placeholder="请选择核销截止时间"
+          value-format="yyyy.MM.dd HH:mm:ss"
         />
-      </el-form-item>
-      <el-form-item label="抽奖人数上限：" prop="max_user_num">
-        <el-input
-          :disabled="state == 1 || state == 2"
-          v-model="newForm.max_user_num"
-          placeholder="请输入抽奖人数上限"
-        />
-      </el-form-item>
-      <el-form-item label="封面图：" prop="cover_images">
-        <el-upload
+      </n-form-item>
+      <n-form-item label="抽奖人数上限：" path="max_user_num">
+        <n-input :disabled="state == 1 || state == 2" v-model:value="newForm.max_user_num" placeholder="请输入抽奖人数上限" />
+      </n-form-item>
+      <n-form-item label="封面图：" path="cover_images">
+        <n-upload
           :disabled="state == 1 || state == 2"
           class="avatar-uploader"
           action="http://upload.qiniup.com"
           :headers="headers"
-          list-type="picture-card"
+          list-type="image-card"
           multiple
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
           :file-list="fileList"
           :data="uploadData"
-          :before-upload="beforePictureUpload"
-          :on-success="handlePictureSuccess"
+          :on-before-upload="beforePictureUpload"
+          :on-finish="handlePictureSuccess"
         >
-          <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
-        </el-upload>
-        <el-alert
-          class="warning"
-          title="为保证最终效果，请上传长宽比为1:1，1M以内的素材图"
-          type="success"
-          :closable="false"
-        />
-      </el-form-item>
-      <el-form-item
-        v-for="(award, index) in newForm.awards"
-        :key="'awards.' + index + '.num'"
-        :label="`奖品${index + 1}`"
-        :prop="'awards.' + index + '.num'"
-      >
+          <n-icon class="avatar-uploader-icon">
+            <Add />
+          </n-icon>
+        </n-upload>
+        <n-alert class="warning" title="为保证最终效果，请上传长宽比为1:1，1M以内的素材图" type="success" :closable="false" />
+      </n-form-item>
+      <n-form-item v-for="(award, index) in newForm.awards" :key="'awards.' + index + '.num'" :label="`奖品${index + 1}`" :path="'awards.' + index + '.num'">
         <div class="flex ai-center">
-          <el-input
-            :disabled="state == 1 || state == 2"
-            v-model="award.name"
-            placeholder="奖品名称"
-          />
-          <el-input
-            :disabled="state == 1 || state == 2"
-            class="m-0-5"
-            v-model="award.num"
-            placeholder="设置奖品份数"
-          />
+          <n-input :disabled="state == 1 || state == 2" v-model:value="award.name" placeholder="奖品名称" />
+          <n-input :disabled="state == 1 || state == 2" class="m-0-5" v-model:value="award.num" placeholder="设置奖品份数" />
           <span>份</span>
-          <el-button
-            :disabled="state == 1 || state == 2"
-            v-if="newForm.awards.length > 1"
-            class="m-0-5"
-            @click.prevent="removeAward(index)"
-          >
-            删除
-          </el-button>
-          <el-button
-            :disabled="state == 1 || state == 2"
-            v-if="newForm.awards.length - 1 === index"
-            class="m-0-5"
-            @click.prevent="addAward()"
-          >
-            新增
-          </el-button>
+          <n-button v-if="newForm.awards.length > 1" class="m-0-5" type="primary" size="small" :disabled="state == 1 || state == 2" @click.prevent="removeAward(index)">删除</n-button>
+          <n-button v-if="newForm.awards.length - 1 === index" class="m-0-5" type="primary" size="small" :disabled="state == 1 || state == 2" @click.prevent="addAward()">新增</n-button>
         </div>
-      </el-form-item>
-      <el-form-item label="向用户展示奖品份数：" prop="is_show_award_num">
-        <el-switch
-          :disabled="state == 1 || state == 2"
-          v-model="newForm.is_show_award_num"
-          :active-value="1"
-          :inactive-value="0"
-        />
-      </el-form-item>
-      <el-form-item label="图文介绍（选填）：" prop="introduce_type">
+      </n-form-item>
+      <n-form-item label="向用户展示奖品份数：" path="is_show_award_num">
+        <n-switch :disabled="state == 1 || state == 2" v-model:value="newForm.is_show_award_num" :checked-value="1" :unchecked-value="0" />
+      </n-form-item>
+      <n-form-item label="图文介绍（选填）：" path="introduce_type">
         <div class="flex flex-column ai-normal">
-          <el-radio-group v-model="newForm.introduce_type">
-            <el-radio :label="1">文字</el-radio>
-            <el-radio :label="2">图片</el-radio>
-          </el-radio-group>
+          <n-radio-group v-model:value="newForm.introduce_type">
+            <n-space>
+              <n-radio :value="1">文字</n-radio>
+              <n-radio :value="2">图片</n-radio>
+            </n-space>
+          </n-radio-group>
           <div>
-            <el-input
-              v-if="newForm.introduce_type === 1"
-              v-model="newForm.content"
-              :rows="3"
-              type="textarea"
-              placeholder="请输入文字介绍"
-            />
-            <el-upload
+            <n-input v-if="newForm.introduce_type === 1" v-model:value="newForm.content" :rows="3" type="textarea" placeholder="请输入文字介绍" />
+            <n-upload
               v-else
               class="avatar-uploader"
               action="http://upload.qiniup.com"
               :data="uploadData"
               :show-file-list="false"
-              :before-upload="beforeAvatarUpload"
-              :on-success="handleAvatarSuccess"
+              :on-before-upload="beforeAvatarUpload"
+              :on-finish="handleAvatarSuccess"
             >
               <img
                 v-if="newForm.pictures && newForm.pictures != ''"
                 :src="newForm.pictures"
                 class="avatar"
               />
-              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-            </el-upload>
+              <n-icon v-else class="avatar-uploader-icon">
+                <Add />
+              </n-icon>
+            </n-upload>
           </div>
         </div>
-      </el-form-item>
-      <el-form-item class="btns">
-        <el-button @click="onCancel()">取消</el-button>
-        <el-button type="primary" @click="onSubmit(newRef)">保存</el-button>
-      </el-form-item>
-    </el-form>
+      </n-form-item>
+      <n-form-item class="btns">
+        <n-button @click="onCancel()">取消</n-button>
+        <n-button type="primary" @click="onSubmit(newRef)">保存</n-button>
+      </n-form-item>
+    </n-form>
+    <n-dialog>
+      <template #default>
+        <img w-full :src="dialogImageUrl" alt="Preview Image" />
+      </template>
+    </n-dialog>
     <el-dialog v-model="dialogVisible" fullscreen>
       <img w-full :src="dialogImageUrl" alt="Preview Image" />
     </el-dialog>
@@ -169,8 +129,8 @@
 import { reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
+import { Add } from '@vicons/ionicons5'
 import type { FormInstance, UploadProps, FormRules } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
 import {
   getUploadToken,
   getActivityDetail,
@@ -366,9 +326,6 @@ init();
   }
   .warning {
     margin-top: 10px;
-  }
-  :deep(.el-form-item__content) {
-    flex: none;
   }
 
   :deep(.avatar-uploader) {

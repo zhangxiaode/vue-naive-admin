@@ -70,10 +70,10 @@
         <n-button @click="onExport">
           <template #icon>
             <n-icon>
-              <!-- <FileDownloadFilled /> -->
               <file-download-filled />
             </n-icon>
-          </template>导出
+          </template>
+          导出
         </n-button>
       </n-form-item>
     </n-form>
@@ -167,16 +167,16 @@
           </template>
         </el-table-column>
       </n-data-table>
-      <el-pagination
+      <n-pagination
         class="pager"
-        v-model:currentPage="page"
-        v-model:page-size="per_page"
+        v-model:page="page"
+        :page-count="per_page"
         :page-sizes="[10, 20, 30, 40]"
-        :background="ref(true)"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
+        :item-count="total"
+        show-quick-jumper
+        show-size-picker
+        on-update:page="handleCurrentChange"
+        on-update:page-size="handleSizeChange"
       />
     </div>
     <el-dialog v-model="dialogVisible">

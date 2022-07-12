@@ -11,59 +11,54 @@
       class="login"
     >
       <n-form-item label="用户名：" path="username">
-        <n-input v-model="loginForm.username" placeholder="请输入用户名" />
+        <n-input v-model:value="loginForm.username" placeholder="请输入用户名" />
       </n-form-item>
       <n-form-item label="密码：" path="password">
-        <n-input v-model="loginForm.password" type="password" placeholder="请输入密码" />
+        <n-input v-model:value="loginForm.password" type="password" placeholder="请输入密码" />
       </n-form-item>
       <n-form-item class="btns">
-        <n-button @click="onReset(loginRef)">重置</n-button>
-        <n-button type="primary" @click="onSubmit(loginRef)">登录</n-button>
+        <n-button @click="onReset()">重置</n-button>
+        <n-button type="primary" @click="onSubmit()">登录</n-button>
       </n-form-item>
     </n-form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
-import { FormInst, FormItemRule, useMessage } from 'naive-ui'
-import { LocationQueryValueRaw, useRoute, useRouter } from "vue-router";
+import { ref } from "vue";
+import { FormInst } from 'naive-ui'
+import { useRoute, useRouter } from "vue-router";
 import { login } from "@/apis/index";
 // import store from "@/store";
-// const message = useMessage();
 const route = useRoute();
 const router = useRouter();
-const loginRef = ref<FormInst>();
-const loginForm = reactive({
+const loginRef = ref<FormInst | null>(null);
+const loginForm = ref({
   username: "18812345678",
   password: "123456",
 });
-const loginRules = reactive<FormItemRule>({
+const loginRules = {
   username: { required: true, message: "用户名不能为空", trigger: ['blur', 'change'] },
   password: { required: true, message: "密码不能为空", trigger: ['blur', 'change'] },
-});
+};
 const onSubmit = async () => {
   loginRef.value?.validate((errors) => {
     if (!errors) {
       login({
-        mobile: loginForm.username,
-        password: loginForm.password,
+        mobile: loginForm.value.username,
+        password: loginForm.value.password,
       }).then((res: any) => {
         localStorage.setItem("token", res.token);
-        // store.commit("user/SET_NAME", res.nickname);
-        // store.commit("user/SET_AVATAR", res.avatar);
-        const path2: any = route.query.redirect || "/activity/list";
-        console.log(path2);
-        router.push(path2);
+        const path: any = route.query.redirect || "/activity/list";
+        router.push(path);
       });
     } else {
       console.log(errors)
-      // message.error('验证失败')
     }
   })
 };
-const onReset = (formEl: FormInst | undefined) => {
-  if (!formEl) return;
+const onReset = () => {
+  console.log(loginRef)
   // formEl.resetFields();
 };
 </script>

@@ -1,27 +1,18 @@
 <template>
   <div class="pageHeader flex jc-between ai-center h-100">
     <div class="collapse flex ai-center cursor-pointer">
-      <el-icon :size="64" color="#eee" @click="changeCollapse()">
-        <Expand v-if="collapse" />
-        <Fold v-else />
-      </el-icon>
-      <el-breadcrumb class="breadcrumb" :separator-icon="ArrowRight">
-        <el-breadcrumb-item
-          v-for="(item, index) in route.matched"
-          :key="item.meta.code"
-          :to="index < route.matched.length - 1 ? item.path : null"
-          >{{ item.meta.title }}</el-breadcrumb-item
-        >
-      </el-breadcrumb>
+      <n-icon :size="64" color="#eee" @click="changeCollapse()">
+        <CaretForward v-if="collapse" />
+        <CaretBack v-else />
+      </n-icon>
+      <n-breadcrumb class="breadcrumb" :separator="AngleRight" :separator-icon="ChevronForward">
+        <n-breadcrumb-item v-for="(item, index) in route.matched" :key="item.meta.code" :href="index < route.matched.length - 1 ? item.path : null">{{ item.meta.title }}</n-breadcrumb-item>
+      </n-breadcrumb>
     </div>
-    <el-dropdown
-      class="userInfo cursor-pointer"
-      trigger="click"
-      @command="logout"
-    >
+    <n-dropdown class="userInfo cursor-pointer" trigger="click" :options="[{ label: '退出系统', key: '退出' }]" @select="logout">
       <div class="avatar-wrapper flex ai-center h-100">
         <img
-          :src="avatar || require('../assets/photo.png')"
+          :src="avatar || '../assets/photo.png'"
           class="userPhoto"
         />
         <p class="userName">
@@ -29,12 +20,7 @@
         </p>
         <i class="slideDown" />
       </div>
-      <template #dropdown>
-        <el-dropdown-menu class="user-dropdown">
-          <el-dropdown-item command="退出">退出系统</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
+    </n-dropdown>
   </div>
 </template>
 
@@ -43,16 +29,17 @@ import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import store from "@/store";
-// import { GameControllerOutline, GameController } from '@vicons/ionicons5'
-import { Fold, Expand, ArrowRight } from "@element-plus/icons-vue";
+import { AngleRight, CaretBack, CaretForward, ChevronForward } from '@vicons/ionicons5'
 const route = useRoute();
 const router = useRouter();
 
 const collapse = computed(() => store.getters.collapse === "1");
 const name = computed(() => store.getters.name);
 const avatar = computed(() => store.getters.avatar);
-const logout = () => {
-  router.push("/login");
+const logout = (key: string) => {
+  if(key == '退出') {
+    router.push("/login");
+  }
 };
 const changeCollapse = () => {
   store.commit("app/TOGGLE_COLLAPSE");

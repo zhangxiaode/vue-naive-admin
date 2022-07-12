@@ -1,40 +1,47 @@
 <template>
   <div class="content activity-verify">
-    <el-form
+    <n-form
       ref="searchRef"
       :inline="true"
       :model="searchForm"
       class="searchForm"
     >
-      <el-form-item label="兑奖码：" prop="code">
-        <el-input v-model="searchForm.code" placeholder="请输入兑奖码" />
-      </el-form-item>
-      <el-form-item label="活动名称：" prop="title">
-        <el-input v-model="searchForm.title" placeholder="请输入活动名称" />
-      </el-form-item>
-      <el-form-item label="活动开始时间：" prop="start_time">
-        <el-date-picker
+      <n-form-item label="兑奖码：" path="code">
+        <n-input v-model:value="searchForm.code" placeholder="请输入兑奖码" />
+      </n-form-item>
+      <n-form-item label="活动名称：" path="title">
+        <n-input v-model:value="searchForm.title" placeholder="请输入活动名称" />
+      </n-form-item>
+      <n-form-item label="活动开始时间：" path="start_time">
+        <n-date-picker
           v-model="searchForm.start_time"
           type="datetimerange"
           range-separator="至"
           start-placeholder="选择时间"
           end-placeholder="选择时间"
-          value-format="YYYY-MM-DD HH:mm:ss"
+          value-format="yyyy.MM.dd HH:mm:ss"
         />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSearch">筛选</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onMultyVerify"> 批量核销 </el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="onReset(searchRef)"> 重置 </el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button :icon="FileDownloadFilled" @click="onExport">导出</el-button>
-      </el-form-item>
-    </el-form>
+      </n-form-item>
+      <n-form-item>
+        <n-button type="primary" @click="onSearch">筛选</n-button>
+      </n-form-item>
+      <n-form-item>
+        <n-button type="primary" @click="onMultyVerify">批量核销</n-button>
+      </n-form-item>
+      <n-form-item>
+        <n-button @click="onReset()"> 重置 </n-button>
+      </n-form-item>
+      <n-form-item>
+        <n-button :icon="FileDownloadFilled" @click="onExport">
+          <template #icon>
+            <n-icon>
+              <file-download-filled />
+            </n-icon>
+          </template>
+          导出
+        </n-button>
+      </n-form-item>
+    </n-form>
     <div class="cont">
       <el-table
         border
@@ -91,11 +98,7 @@
           min-width="100"
         >
           <template #default="scoped">
-            <el-input
-              v-model="scoped.row.remark"
-              placeholder="请添加备注"
-              @blur="handleChangeRemark(scoped.row)"
-            />
+            <n-input v-model:value="scoped.row.remark" placeholder="请添加备注" @blur="handleChangeRemark(scoped.row)" />
           </template>
         </el-table-column>
         <el-table-column
@@ -125,28 +128,20 @@
           min-width="100"
         >
           <template #default="scoped">
-            <el-button
-              link
-              type="primary"
-              size="small"
-              :disabled="scoped.row.state != 0"
-              @click="onVerify(scoped.row.id)"
-            >
-              核销
-            </el-button>
+            <n-button quaternary type="primary" size="small" :disabled="scoped.row.state != 0" @click="onVerify(scoped.row.id)">核销</n-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
+      <n-pagination
         class="pager"
-        v-model:currentPage="page"
-        v-model:page-size="per_page"
+        v-model:page="page"
+        :page-count="per_page"
         :page-sizes="[10, 20, 30, 40]"
-        :background="ref(true)"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
+        :item-count="total"
+        show-quick-jumper
+        show-size-picker
+        on-update:page="handleCurrentChange"
+        on-update:page-size="handleSizeChange"
       />
     </div>
   </div>
@@ -218,9 +213,8 @@ const onMultyVerify = () => {
     });
   }
 };
-const onReset = (formEl: FormInst | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
+const onReset = () => {
+  console.log(searchRef)
   onSearch();
 };
 const onExport = () => {

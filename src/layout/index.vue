@@ -1,7 +1,7 @@
 <template>
   <n-layout has-sider class="layout h-100 flex">
     123
-    <!-- <n-layout-sider width="auto" class="aside">
+    <n-layout-sider width="auto" class="aside">
       <PageAside />
     </n-layout-sider>
     <n-layout class="flex-1 flex ai-normal overflow-hidden">
@@ -9,20 +9,8 @@
       <n-layout-content class="main flex-1">
         <router-view />
       </n-layout-content>
-    </n-layout> -->
+    </n-layout>
   </n-layout>
-
-  <!-- <el-container class="layout h-100 flex">
-    <el-aside width="auto" class="aside">
-      <PageAside />
-    </el-aside>
-    <el-container class="flex-1 flex ai-normal overflow-hidden">
-      <el-header class="header"><PageHeader /></el-header>
-      <el-main class="main flex-1">
-        <router-view />
-      </el-main>
-    </el-container>
-  </el-container> -->
 </template>
 
 <script lang="ts" setup>
