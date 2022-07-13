@@ -114,14 +114,9 @@
         <n-button type="primary" @click="onSubmit(newRef)">保存</n-button>
       </n-form-item>
     </n-form>
-    <n-dialog>
-      <template #default>
-        <img w-full :src="dialogImageUrl" alt="Preview Image" />
-      </template>
-    </n-dialog>
-    <el-dialog v-model="dialogVisible" fullscreen>
+    <n-modal v-model:show="dialogVisible" transform-origin="center">
       <img w-full :src="dialogImageUrl" alt="Preview Image" />
-    </el-dialog>
+    </n-modal>
   </div>
 </template>
 

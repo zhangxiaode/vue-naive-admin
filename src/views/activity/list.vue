@@ -78,95 +78,7 @@
       </n-form-item>
     </n-form>
     <div class="cont">
-      <n-data-table bordered :columns="columns" :data="tableData" :pagination="pagination">
-         <!-- :data="tableData" style="width: 100%" -->
-        <el-table-column prop="title" label="活动名称" min-width="120" />
-        <el-table-column prop="start_time" label="开始时间" min-width="160" />
-        <el-table-column prop="end_time" label="预设结束时间" min-width="160" />
-        <el-table-column
-          prop="last_verify_destroy_time"
-          label="核销截止时间"
-          min-width="160"
-        />
-        <el-table-column prop="awards" label="奖品配置" min-width="160">
-          <template #default="scoped">
-            <div v-for="(item, index) in scoped.row.awards" :key="index">
-              {{ item.name }} {{ item.num }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="max_user_num"
-          label="抽奖人数上限"
-          min-width="120"
-        />
-        <el-table-column prop="state" label="活动状态" min-width="100">
-          <template #default="scoped">
-            {{
-              scoped.row.state == 0
-                ? "未开始"
-                : scoped.row.state == 1
-                ? "进行中"
-                : "已完成"
-            }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="verify_destroy_state"
-          label="核销状态"
-          min-width="100"
-        >
-          <template #default="scoped">
-            {{ scoped.row.verify_destroy_state == 0 ? "未结束" : "已结束" }}
-          </template>
-        </el-table-column>
-        <el-table-column fixed="right" label="操作" min-width="280">
-          <template #default="scoped">
-            <n-button
-              link
-              type="primary"
-              size="small"
-              @click="onEdit(scoped.row.id)"
-            >
-              编辑
-            </n-button>
-            <n-button
-              link
-              type="primary"
-              size="small"
-              :disabled="!scoped.row.qr_url"
-              @click="onQucode(scoped.row.qr_url)"
-            >
-              二维码路径
-            </n-button>
-            <n-button
-              link
-              type="primary"
-              size="small"
-              @click="onVerify(scoped.row.id)"
-            >
-              核销
-            </n-button>
-            <n-button
-              link
-              type="primary"
-              size="small"
-              @click="onEnd(scoped.row.id)"
-            >
-              <span
-                :class="
-                  scoped.row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd'
-                "
-                >{{
-                  scoped.row.verify_destroy_state == 0
-                    ? "标记核销已结束"
-                    : "标记核销未结束"
-                }}</span
-              >
-            </n-button>
-          </template>
-        </el-table-column>
-      </n-data-table>
+      <n-data-table bordered :columns="columns" :data="tableData" />
       <n-pagination
         class="pager"
         v-model:page="page"
@@ -179,9 +91,9 @@
         on-update:page-size="handleSizeChange"
       />
     </div>
-    <el-dialog v-model="dialogVisible">
+    <n-modal v-model:show="dialogVisible" transform-origin="center">
       <img w-full :src="qr_url" alt="Preview Image" />
-    </el-dialog>
+    </n-modal>
   </div>
 </template>
 
@@ -206,48 +118,109 @@ let total = ref(4);
 let columns = ref([
   {
     title: '活动名称',
-    key: 'title'
+    key: 'title',
+    minWidth: 120
   },
   {
     title: '开始时间',
-    key: 'start_time'
+    key: 'start_time',
+    minWidth: 160
   },
   {
     title: '预设结束时间',
-    key: 'end_time'
+    key: 'end_time',
+    minWidth: 160
   },
   {
     title: '核销截止时间',
-    key: 'last_verify_destroy_time'
+    key: 'last_verify_destroy_time',
+    minWidth: 160
   },
   {
     title: '奖品配置',
-    key: 'awards'
+    key: 'awards',
+    minWidth: 160,
+    render (row: any) {
+      console.log(row)
+      return `<div v-for="(item, index) in scoped.row.awards" :key="index">
+        {{ item.name }} {{ item.num }}
+      </div>`
+    }
   },
   {
     title: '抽奖人数上限',
-    key: 'max_user_num'
+    key: 'max_user_num',
+    minWidth: 120
   },
   {
     title: '活动状态',
-    key: 'state'
+    key: 'state',
+    minWidth: 100,
+    render (row: any) {
+      return row.state == 0 ? "未开始" : row.state == 1 ? "进行中" : "已完成"
+    }
   },
   {
     title: '核销状态',
-    key: 'verify_destroy_state'
+    key: 'verify_destroy_state',
+    minWidth: 100,
+    render (row: any) {
+      return row.verify_destroy_state == 0 ? "未结束" : "已结束"
+    }
   },
   {
     title: '操作',
     key: 'actions',
+    minWidth: 280,
     render (row: any) {
       console.log(row)
-      return h(
-        NButton,
-        { default: () => '编辑' },
-        // { default: () => '二维码路径' },
-        // { default: () => '核销' },
-        // { default: () => '标记核销已结束' }
-      )
+      return [
+        h(NButton, { 
+          props: {
+            link: true,
+            type: "primary",
+            size: "small"
+          },
+          click: onEdit(row.id),
+          default: () => '编辑' 
+        }),
+        h(NButton, { 
+          props: {
+            link: true,
+            type: "primary",
+            size: "small",
+            disabled: !row.qr_url
+          },
+          click: onQucode(row.qr_url),
+          default: () => '二维码路径' 
+        }),
+        h(NButton, { 
+          props: {
+            link: true,
+            type: "primary",
+            size: "small"
+          },
+          click: onVerify(row.id),
+          default: () => '核销' 
+        }),
+        h(NButton, { 
+          props: {
+            link: true,
+            type: "primary",
+            size: "small"
+          },
+          click: onEnd(row.id),
+          default: h(
+            'span',
+            {
+              props: {
+                class: row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd'
+              },
+              default: () => row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束"
+            }
+          ) 
+        })
+      ]
     }
   }
 ]);
