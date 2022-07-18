@@ -141,10 +141,14 @@ let columns = ref([
     key: 'awards',
     minWidth: 160,
     render (row: any) {
-      console.log(row)
-      return `<div v-for="(item, index) in scoped.row.awards" :key="index">
-        {{ item.name }} {{ item.num }}
-      </div>`
+      return row.awards.map((item: any, index: number) => {
+        return h('div', { 
+          props: {
+            key: index
+          },
+          default: () => `${item.name} ${item.num}`
+        })
+      })
     }
   },
   {
