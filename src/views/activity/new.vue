@@ -111,7 +111,7 @@
       </n-form-item>
       <n-form-item class="btns">
         <n-button @click="onCancel()">取消</n-button>
-        <n-button type="primary" @click="onSubmit(newRef)">保存</n-button>
+        <n-button type="primary" @click="onSubmit()">保存</n-button>
       </n-form-item>
     </n-form>
     <n-modal v-model:show="dialogVisible" transform-origin="center">
@@ -123,9 +123,9 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { ElMessage } from "element-plus";
+import { FormInst, useMessage } from 'naive-ui'
+import type { UploadFileInfo } from 'naive-ui'
 import { Add } from '@vicons/ionicons5'
-import type { FormInstance, UploadProps, FormRules } from "element-plus";
 import {
   getUploadToken,
   getActivityDetail,
@@ -134,12 +134,13 @@ import {
 } from "@/apis/index";
 const router = useRouter();
 const route = useRoute();
+const message = useMessage()
 
 interface AwardItem {
   name: string;
   num: number;
 }
-const newRef = ref<FormInstance>();
+const newRef = ref<FormInst | null>(null)
 const uploadData = ref({
   token: "",
   key: "",
@@ -171,7 +172,7 @@ const state = ref(0);
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
 
-const newRules = reactive<FormRules>({
+const newRules = {
   title: [
     { required: true, message: "活动名称不能为空", trigger: "blur change" },
   ],
@@ -195,8 +196,8 @@ const newRules = reactive<FormRules>({
   cover_images: [
     { required: true, message: "封面图不能为空", trigger: "blur change" },
   ],
-});
-const handleRemove: UploadProps["onRemove"] = () => {
+};
+const handleRemove: Promise<boolean> | boolean | any = () => {
   newForm.cover_images = fileList.value.map((item: any) =>
     item.percentage
       ? "https://ommdq027l.qnssl.com/" + item.response.key
@@ -204,7 +205,7 @@ const handleRemove: UploadProps["onRemove"] = () => {
   ) as any;
 };
 
-const handlePictureCardPreview: UploadProps["onPreview"] = (uploadFile) => {
+const handlePictureCardPreview: void = (uploadFile: any) => {
   dialogImageUrl.value = uploadFile.url!;
   dialogVisible.value = true;
 };
@@ -221,42 +222,41 @@ const removeAward = (index: number) => {
   }
 };
 
-const beforePictureUpload: UploadProps["beforeUpload"] = (rawFile) => {
+const beforePictureUpload: Promise<boolean | void> | boolean | void = (rawFile: any) => {
   uploadData.value.key = `${Math.random()
     .toString(36)
     .slice(-10)}_${Date.now()}_${rawFile.name}`;
   if (rawFile.size / 1024 / 1024 > 1) {
-    ElMessage.error("图片应在1MB以内!");
+    message.error("图片应在1MB以内!");
     return false;
   }
   return true;
 };
-const handlePictureSuccess: UploadProps["onSuccess"] = () => {
+const handlePictureSuccess: UploadFileInfo | undefined = () => {
   newForm.cover_images = fileList.value.map((item: any) =>
     item.percentage
       ? "https://ommdq027l.qnssl.com/" + item.response.key
       : item.url
   ) as any;
 };
-const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
+const beforeAvatarUpload: Promise<boolean | void> | boolean | void = (rawFile: any) => {
   uploadData.value.key = `${Math.random()
     .toString(36)
     .slice(-10)}_${Date.now()}_${rawFile.name}`;
   return true;
 };
-const handleAvatarSuccess: UploadProps["onSuccess"] = (response) => {
+const handleAvatarSuccess: UploadFileInfo | undefined = (response: any) => {
   newForm.pictures = "https://ommdq027l.qnssl.com/" + response.key;
 };
 
 const onCancel = () => {
   window.close();
 };
-const onSubmit = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  await formEl.validate((valid, fields) => {
-    if (valid) {
+const onSubmit = async () => {
+  newRef.value?.validate((errors) => {
+    if (!errors) {
       if (newForm.awards.length === 0) {
-        ElMessage.error("请至少设置一份奖品");
+        message.error("请至少设置一份奖品");
       } else {
         let method = createActivity;
         let params = JSON.parse(JSON.stringify(newForm));
@@ -265,16 +265,16 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
           params["id"] = route.query.id;
         }
         method(params).then(() => {
-          ElMessage.success("保存成功");
+          message.success("保存成功");
           setTimeout(() => {
             window.close();
           }, 1000);
         });
       }
     } else {
-      console.log("error submit!", fields);
+      console.log(errors)
     }
-  });
+  })
 };
 const uploadToken = () => {
   getUploadToken().then((res: any) => {

@@ -6,8 +6,9 @@
       :model="loginForm"
       :rules="loginRules"
       label-width="100px"
-      :size="ref('large')"
-      :label-placement="ref('right')"
+      label-align="right"
+      label-placement="left"
+      size="large"
       class="login"
     >
       <n-form-item label="用户名：" path="username">
@@ -16,7 +17,7 @@
       <n-form-item label="密码：" path="password">
         <n-input v-model:value="loginForm.password" type="password" placeholder="请输入密码" />
       </n-form-item>
-      <n-form-item class="btns">
+      <n-form-item label=" " class="btns">
         <n-button @click="onReset()">重置</n-button>
         <n-button type="primary" @click="onSubmit()">登录</n-button>
       </n-form-item>
@@ -58,8 +59,12 @@ const onSubmit = async () => {
   })
 };
 const onReset = () => {
+  loginForm.value = {
+    username: "",
+    password: "",
+  }
   console.log(loginRef)
-  // formEl.resetFields();
+  // loginRef.resetFields();
 };
 </script>
 
@@ -89,9 +94,12 @@ const onReset = () => {
   background: #fff;
   border-radius: 6px;
   padding: 30px;
-  text-align: center;
+  text-align: left;
   .btns {
     text-align: center;
+    .n-button {
+      margin-right: 20px;
+    }
   }
 }
 </style>

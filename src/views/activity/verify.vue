@@ -32,7 +32,7 @@
         <n-button @click="onReset()"> 重置 </n-button>
       </n-form-item>
       <n-form-item>
-        <n-button :icon="FileDownloadFilled" @click="onExport">
+        <n-button :icon="DownloadOutline" @click="onExport">
           <template #icon>
             <n-icon>
               <file-download-filled />
@@ -44,95 +44,6 @@
     </n-form>
     <div class="cont">
       <n-data-table bordered :columns="columns" :data="tableData" />
-      <!-- <el-table
-        border
-        :data="tableData"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column
-          type="selection"
-          align="center"
-          label="全选"
-          width="55"
-        />
-        <el-table-column
-          prop="code"
-          align="center"
-          label="兑奖码"
-          min-width="80"
-        />
-        <el-table-column
-          prop="award_name"
-          align="left"
-          label="奖品"
-          min-width="120"
-        />
-        <el-table-column
-          prop="last_verify_destroy_time"
-          align="center"
-          label="核销截止时间"
-          min-width="140"
-        />
-        <el-table-column
-          prop="activity_title"
-          align="left"
-          label="活动名称"
-          min-width="120"
-        />
-        <el-table-column
-          prop="activity_start_time"
-          align="center"
-          label="活动开始时间"
-          min-width="140"
-        />
-        <el-table-column
-          prop="activity_end_time"
-          align="center"
-          label="活动结束时间"
-          min-width="140"
-        />
-        <el-table-column
-          prop="remark"
-          align="left"
-          label="备注"
-          min-width="100"
-        >
-          <template #default="scoped">
-            <n-input v-model:value="scoped.row.remark" placeholder="请添加备注" @blur="handleChangeRemark(scoped.row)" />
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="state"
-          align="center"
-          label="状态"
-          min-width="80"
-        >
-          <template #default="scoped">
-            {{
-              scoped.row.state == 0
-                ? "待核销"
-                : scoped.row.state == 1
-                ? "已核销"
-                : scoped.row.state == 2
-                ? "已失效"
-                : scoped.row.state == -1
-                ? "未领取"
-                : "--"
-            }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          fixed="right"
-          align="center"
-          label="操作"
-          min-width="100"
-        >
-          <template #default="scoped">
-            <n-button quaternary type="primary" size="small" :disabled="scoped.row.state != 0" @click="onVerify(scoped.row.id)">核销</n-button>
-          </template>
-        </el-table-column>
-      </el-table> -->
       <n-pagination
         class="pager"
         v-model:page="page"
@@ -151,8 +62,8 @@
 <script lang="ts" setup>
 import { h, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
-import { NButton, NInput, FormInst, FormItemRule, useMessage } from 'naive-ui'
-import { FileDownloadFilled } from '@vicons/ionicons5'
+import { NButton, NInput, FormInst, useMessage } from 'naive-ui'
+import { DownloadOutline } from '@vicons/ionicons5'
 import { getCodeList, verifyDestroy, patchawardCode } from "@/apis/index";
 const message = useMessage()
 const route = useRoute();

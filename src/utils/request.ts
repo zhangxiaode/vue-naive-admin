@@ -28,9 +28,9 @@ service.interceptors.response.use(
       sessionStorage.removeItem("userMsg");
       message.error("用户身份已失效，请重新登录");
       const path: Array<string> =
-        window.location.pathname.split("/kaola-backend");
+        window.location.pathname.split("/backend");
       const url: string = path.length > 1 ? path[1] : path[0];
-      location.href = `/kaola-backend/login?redirect=${url}${window.location.search}`;
+      location.href = `/backend/login?redirect=${url}${window.location.search}`;
       return;
     }
     return response.data;

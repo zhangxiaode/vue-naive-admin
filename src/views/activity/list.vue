@@ -59,18 +59,18 @@
         <n-button type="primary" @click="onSearch">查询</n-button>
       </n-form-item>
       <n-form-item>
-        <n-button type="primary" :icon="Plus" @click="onCreate">
+        <n-button type="primary" :icon="Add" @click="onCreate">
           新建活动
         </n-button>
       </n-form-item>
       <n-form-item>
-        <n-button @click="onReset(searchRef)"> 重置 </n-button>
+        <n-button @click="onReset()"> 重置 </n-button>
       </n-form-item>
       <n-form-item>
         <n-button @click="onExport">
           <template #icon>
             <n-icon>
-              <file-download-filled />
+              <download-outline />
             </n-icon>
           </template>
           导出
@@ -82,7 +82,7 @@
       <n-pagination
         class="pager"
         v-model:page="page"
-        :page-count="per_page"
+        :page-size="per_page"
         :page-sizes="[10, 20, 30, 40]"
         :item-count="total"
         show-quick-jumper
@@ -98,14 +98,13 @@
 </template>
 
 <script lang="ts" setup>
-import { h, reactive, ref } from "vue";
-import { NButton, FormInst, FormItemRule, useMessage } from 'naive-ui'
-import { FileDownloadFilled } from '@vicons/ionicons5'
-import { Plus, Download } from "@element-plus/icons-vue";
+import { h, ref } from "vue";
+import { NButton, FormInst } from 'naive-ui'
+import { Add, DownloadOutline } from '@vicons/ionicons5'
 import { getActivity, turnVerifyDestroyState } from "@/apis/index";
-const message = useMessage()
-const searchRef = ref<FormInst>();
-const searchForm = reactive({
+// const message = useMessage()
+const searchRef = ref<FormInst | null>(null)
+const searchForm = ref({
   start_time: [],
   title: "",
   state: "",
@@ -236,16 +235,16 @@ const getList = () => {
     page: page.value,
     per_page: per_page.value,
     min_start_time:
-      searchForm.start_time && searchForm.start_time.length > 0
-        ? searchForm.start_time[0]
+      searchForm.value.start_time && searchForm.value.start_time.length > 0
+        ? searchForm.value.start_time[0]
         : "",
     max_start_time:
-      searchForm.start_time && searchForm.start_time.length > 1
-        ? searchForm.start_time[1]
+      searchForm.value.start_time && searchForm.value.start_time.length > 1
+        ? searchForm.value.start_time[1]
         : "",
-    title: searchForm.title,
-    state: searchForm.state,
-    verify_destroy_state: searchForm.verify_destroy_state,
+    title: searchForm.value.title,
+    state: searchForm.value.state,
+    verify_destroy_state: searchForm.value.verify_destroy_state,
   }).then((res: any) => {
     total.value = res.total;
     tableData.value = res.data;
@@ -253,60 +252,64 @@ const getList = () => {
 };
 const onSearch = () => {
   page.value = 1;
-  getList();
+  // getList();
 };
 const onCreate = () => {
-  window.open(`/kaola-backend/activity/new`, "_blank");
+  // window.open(`/backend/activity/new`, "_blank");
 };
-const onReset = (formEl: FormInst | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
+const onReset = () => {
+  searchForm.value = {
+    start_time: [],
+    title: "",
+    state: "",
+    verify_destroy_state: "",
+  }
   onSearch();
 };
 const onExport = () => {
-  window.open(
-    `/apis/activity/list?page=${page.value}&per_page=${
-      per_page.value
-    }&min_start_time=${
-      searchForm.start_time && searchForm.start_time.length > 0
-        ? searchForm.start_time[0]
-        : ""
-    }&max_start_time=${
-      searchForm.start_time && searchForm.start_time.length > 1
-        ? searchForm.start_time[1]
-        : ""
-    }&title=${searchForm.title}&state=${
-      searchForm.state
-    }&verify_destroy_state=${
-      searchForm.verify_destroy_state
-    }&alt=excel&token=${localStorage.getItem("token")}`,
-    "_blank"
-  );
+  // window.open(
+  //   `/apis/activity/list?page=${page.value}&per_page=${
+  //     per_page.value
+  //   }&min_start_time=${
+  //     searchForm.value.start_time && searchForm.value.start_time.length > 0
+  //       ? searchForm.value.start_time[0]
+  //       : ""
+  //   }&max_start_time=${
+  //     searchForm.value.start_time && searchForm.value.start_time.length > 1
+  //       ? searchForm.value.start_time[1]
+  //       : ""
+  //   }&title=${searchForm.value.title}&state=${
+  //     searchForm.value.state
+  //   }&verify_destroy_state=${
+  //     searchForm.value.verify_destroy_state
+  //   }&alt=excel&token=${localStorage.getItem("token")}`,
+  //   "_blank"
+  // );
 };
 const handleSizeChange = (val: number) => {
   page.value = 1;
   per_page.value = val;
-  getList();
+  // getList();
 };
 const handleCurrentChange = (val: number) => {
   page.value = val;
-  getList();
+  // getList();
 };
 const onEdit = (id: number) => {
-  window.open(`/kaola-backend/activity/new?id=${id}`, "_blank");
+  // window.open(`/backend/activity/new?id=${id}`, "_blank");
 };
 const onQucode = (url: string) => {
   dialogVisible.value = true;
   qr_url.value = url;
 };
 const onVerify = (id: number) => {
-  window.open(`/kaola-backend/activity/verify?id=${id}`, "_blank");
+  // window.open(`/backend/activity/verify?id=${id}`, "_blank");
 };
 const onEnd = (id: number) => {
   turnVerifyDestroyState({ id }).then(() => {
-    message.success("标记成功");
+    // message.success("标记成功");
     page.value = 1;
-    getList();
+    // getList();
   });
 };
 getList();

@@ -1,7 +1,14 @@
 <template>
   <n-layout has-sider class="layout h-100 flex">
-    123
-    <n-layout-sider width="auto" class="aside">
+    <n-layout-sider
+      class="aside" 
+      collapse-mode="width"
+      :collapsed-width="64"
+      :width="200"
+      :collapsed="collapse"
+      show-trigger
+      @collapse="collapse = true"
+      @expand="collapse = false">
       <PageAside />
     </n-layout-sider>
     <n-layout class="flex-1 flex ai-normal overflow-hidden">
@@ -14,8 +21,12 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
+import store from '../store/base'
 import PageHeader from "./pageHeader.vue";
 import PageAside from "./pageAside.vue";
+const collapse = ref(false);
+console.log(112, store)
 </script>
 
 <style lang="scss" scoped>

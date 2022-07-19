@@ -1,11 +1,11 @@
 <template>
   <div class="pageHeader flex jc-between ai-center h-100">
     <div class="collapse flex ai-center cursor-pointer">
-      <n-icon :size="64" color="#eee" @click="changeCollapse()">
-        <CaretForward v-if="collapse" />
-        <CaretBack v-else />
+      <n-icon :size="32" color="#eee" @click="changeCollapse()">
+        <play-skip-back-circle-outline v-if="collapse" />
+        <play-skip-forward-circle-outline v-else />
       </n-icon>
-      <n-breadcrumb class="breadcrumb" :separator="AngleRight" :separator-icon="ChevronForward">
+      <n-breadcrumb class="breadcrumb" separator=" > ">
         <n-breadcrumb-item v-for="(item, index) in route.matched" :key="item.meta.code" :href="index < route.matched.length - 1 ? item.path : null">{{ item.meta.title }}</n-breadcrumb-item>
       </n-breadcrumb>
     </div>
@@ -25,26 +25,28 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import Cookies from "js-cookie";
-import store from "@/store";
-import { AngleRight, CaretBack, CaretForward, ChevronForward } from '@vicons/ionicons5'
+import { PlaySkipBackCircleOutline, PlaySkipForwardCircleOutline } from '@vicons/ionicons5'
+
+// import store from "@/store";
 const route = useRoute();
 const router = useRouter();
-
-const collapse = computed(() => store.getters.collapse === "1");
-const name = computed(() => store.getters.name);
-const avatar = computed(() => store.getters.avatar);
+const collapse = ref(false)
+const name = ''
+const avatar = ''
+// const collapse = computed(() => store.getters.collapse === "1");
+// const name = computed(() => store.getters.name);
+// const avatar = computed(() => store.getters.avatar);
 const logout = (key: string) => {
   if(key == '退出') {
     router.push("/login");
   }
 };
 const changeCollapse = () => {
-  store.commit("app/TOGGLE_COLLAPSE");
+  collapse.value = !collapse.value
+  // store.commit("app/TOGGLE_COLLAPSE");
 };
-Cookies.set("collapse", "0");
 </script>
 
 <style lang="scss" scoped>
