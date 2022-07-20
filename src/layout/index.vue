@@ -47,4 +47,13 @@ const changeCollapse = () => {
   margin: 16px 16px 0;
   padding: 0;
 }
+
+:deep(.n-layout) {
+  .n-layout-scroll-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+}
+ 
 </style>

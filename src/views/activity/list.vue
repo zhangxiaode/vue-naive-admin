@@ -1,96 +1,100 @@
 <template>
   <div class="content activity-list">
-    <n-form
-      ref="searchRef"
-      label-placement="left"
-      :inline="true"
-      :model="searchForm"
-      class="searchForm"
-    >
-      <n-form-item label="活动开始时间：" path="start_time">
-        <n-date-picker
-          v-model="searchForm.start_time"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="选择时间"
-          end-placeholder="选择时间"
-          value-format="yyyy.MM.dd HH:mm:ss"
+    <div class="flex flex-column h-100">
+      <n-form
+        ref="searchRef"
+        label-placement="left"
+        :inline="true"
+        :model="searchForm"
+        class="searchForm"
+      >
+        <n-form-item label="活动开始时间：" path="start_time">
+          <n-date-picker
+            v-model:value="searchForm.start_time"
+            type="datetimerange"
+            start-placeholder="选择时间"
+            end-placeholder="选择时间"
+            separator="至"
+            format="yyyy-MM-dd HH:mm:ss"
+          />
+        </n-form-item>
+        <n-form-item label="活动名称：" path="title">
+          <n-input v-model:value="searchForm.title" placeholder="请输入活动名称" />
+        </n-form-item>
+        <n-form-item label="活动状态：" path="state">
+          <n-select v-model:value="searchForm.state" class="w-200" :options="[
+            {
+              label: '全部',
+              value: ''
+            },
+            {
+              label: '未开始',
+              value: 0
+            },
+            {
+              label: '进行中',
+              value: 1
+            },
+            {
+              label: '已完成',
+              value: 2
+            }
+          ]" placeholder="请选择活动状态" />
+        </n-form-item>
+        <n-form-item label="核销状态：" path="verify_destroy_state">
+          <n-select v-model:value="searchForm.verify_destroy_state" class="w-200" :options="[
+            {
+              label: '全部',
+              value: ''
+            },
+            {
+              label: '未结束',
+              value: 0
+            },
+            {
+              label: '已结束',
+              value: 1
+            }
+          ]" placeholder="请选择活动状态" />
+        </n-form-item>
+        <n-form-item>
+          <n-button type="primary" @click="onSearch">查询</n-button>
+        </n-form-item>
+        <n-form-item>
+          <n-button type="primary" :icon="Add" @click="onCreate">
+            新建活动
+          </n-button>
+        </n-form-item>
+        <n-form-item>
+          <n-button @click="onReset()"> 重置 </n-button>
+        </n-form-item>
+        <n-form-item>
+          <n-button @click="onExport">
+            <template #icon>
+              <n-icon>
+                <download-outline />
+              </n-icon>
+            </template>
+            导出
+          </n-button>
+        </n-form-item>
+      </n-form>
+      <div class="flex flex-column flex-1 overflow-hidden cont">
+        <div class="flex-1" style="overflow: auto">
+          <n-data-table max-height="100%" flex-height virtual-scroll :single-line="false" :columns="columns" :data="tableData" />
+        </div>
+        <n-pagination
+          class="pager"
+          v-model:page="page"
+          :page-size="per_page"
+          :page-sizes="[10, 20, 30, 40]"
+          :item-count="total"
+          show-quick-jumper
+          show-size-picker
+          @update:page="handleCurrentChange"
+          @update:page-size="handleSizeChange"
         />
-      </n-form-item>
-      <n-form-item label="活动名称：" path="title">
-        <n-input v-model="searchForm.title" placeholder="请输入活动名称" />
-      </n-form-item>
-      <n-form-item label="活动状态：" path="state">
-        <n-select v-model="searchForm.state" class="w-200" :options="[
-          {
-            label: '全部',
-            value: ''
-          },
-          {
-            label: '未开始',
-            value: 0
-          },
-          {
-            label: '进行中',
-            value: 1
-          },
-          {
-            label: '已完成',
-            value: 2
-          }
-        ]" placeholder="请选择活动状态" />
-      </n-form-item>
-      <n-form-item label="核销状态：" path="verify_destroy_state">
-        <n-select v-model="searchForm.verify_destroy_state" class="w-200" :options="[
-          {
-            label: '全部',
-            value: ''
-          },
-          {
-            label: '未结束',
-            value: 0
-          },
-          {
-            label: '已结束',
-            value: 1
-          }
-        ]" placeholder="请选择活动状态" />
-      </n-form-item>
-      <n-form-item>
-        <n-button type="primary" @click="onSearch">查询</n-button>
-      </n-form-item>
-      <n-form-item>
-        <n-button type="primary" :icon="Add" @click="onCreate">
-          新建活动
-        </n-button>
-      </n-form-item>
-      <n-form-item>
-        <n-button @click="onReset()"> 重置 </n-button>
-      </n-form-item>
-      <n-form-item>
-        <n-button @click="onExport">
-          <template #icon>
-            <n-icon>
-              <download-outline />
-            </n-icon>
-          </template>
-          导出
-        </n-button>
-      </n-form-item>
-    </n-form>
-    <div class="cont">
-      <n-data-table :single-line="false" :columns="columns" :data="tableData" />
-      <n-pagination
-        class="pager"
-        v-model:page="page"
-        :page-size="per_page"
-        :page-sizes="[10, 20, 30, 40]"
-        :item-count="total"
-        show-quick-jumper
-        show-size-picker
-        @update:page="handleCurrentChange"
-        @update:page-size="handleSizeChange"
-      />
+      </div>
     </div>
     <n-modal v-model:show="dialogVisible" transform-origin="center">
       <img w-full :src="qr_url" alt="Preview Image" />
@@ -100,13 +104,13 @@
 
 <script lang="ts" setup>
 import { h, ref, reactive } from "vue";
-import { NButton, FormInst } from 'naive-ui'
+import { NButton, FormInst, useMessage } from 'naive-ui'
 import { Add, DownloadOutline } from '@vicons/ionicons5'
 import { getActivity, turnVerifyDestroyState } from "@/apis/index";
-// const message = useMessage()
+const message = useMessage()
 const searchRef = ref<FormInst | null>(null)
-let searchForm = reactive({
-  start_time: [],
+let searchForm: any = ref({
+  start_time: null,
   title: "",
   state: "",
   verify_destroy_state: "",
@@ -142,11 +146,8 @@ let columns = ref([
     render (row: any) {
       return row.awards.map((item: any, index: number) => {
         return h('div', { 
-          props: {
-            key: index
-          },
-          default: () => `${item.name} ${item.num}`
-        })
+          key: index
+        }, `${item.name} ${item.num}`)
       })
     }
   },
@@ -182,8 +183,7 @@ let columns = ref([
           link: true,
           quaternary: true,
           size: "small",
-          click: onEdit(row.id),
-          default: () => '编辑' 
+          onClick: () => onEdit(row.id)
         }, '编辑' ),
         h(NButton, { 
           type: 'primary',
@@ -191,31 +191,28 @@ let columns = ref([
           quaternary: true,
           size: "small",
           disabled: !row.qr_url,
-          click: onQucode(row.qr_url),
-          default: () => '二维码路径' 
+          onClick: () => onQucode(row.qr_url),
         }, '二维码路径' ),
         h(NButton, { 
           type: 'primary',
           link: true,
           quaternary: true,
           size: "small",
-          click: onVerify(row.id),
-          default: () => '核销' 
+          onClick: () => onVerify(row.id)
         }, '核销'),
         h(NButton, { 
           type: 'primary',
           link: true,
           quaternary: true,
           size: "small",
-          click: onEnd(row.id),
-          default: h(
-            'span',
-            {
-              class: row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd',
-              default: () => row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束"
-            }
-          ) 
-        }, row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束")
+          onClick: () => onEnd(row.id)
+        }, h(
+          'span',
+          {
+            class: row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd'
+          },
+          row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束"
+        ))
       ]
     }
   }
@@ -228,16 +225,16 @@ const getList = () => {
     page: page.value,
     per_page: per_page.value,
     min_start_time:
-      searchForm.start_time && searchForm.start_time.length > 0
-        ? searchForm.start_time[0]
-        : "",
+      searchForm.value.start_time && searchForm.value.start_time.length > 0
+        ? new Date(searchForm.value.start_time[0]).toLocaleString().replaceAll("/", '-')
+        : null,
     max_start_time:
-      searchForm.start_time && searchForm.start_time.length > 1
-        ? searchForm.start_time[1]
-        : "",
-    title: searchForm.title,
-    state: searchForm.state,
-    verify_destroy_state: searchForm.verify_destroy_state,
+      searchForm.value.start_time && searchForm.value.start_time.length > 1
+        ? new Date(searchForm.value.start_time[1]).toLocaleString().replaceAll("/", '-')
+        : null,
+    title: searchForm.value.title,
+    state: searchForm.value.state,
+    verify_destroy_state: searchForm.value.verify_destroy_state,
   }).then((res: any) => {
     total.value = res.total;
     tableData.value = res.data;
@@ -245,14 +242,14 @@ const getList = () => {
 };
 const onSearch = () => {
   page.value = 1;
-  // getList();
+  getList();
 };
 const onCreate = () => {
-  // window.open(`/backend/activity/new`, "_blank");
+  window.open(`/backend/activity/new`, "_blank");
 };
 const onReset = () => {
-  searchForm = {
-    start_time: [],
+  searchForm.value = {
+    start_time: null,
     title: "",
     state: "",
     verify_destroy_state: "",
@@ -260,49 +257,49 @@ const onReset = () => {
   onSearch();
 };
 const onExport = () => {
-  // window.open(
-  //   `/apis/activity/list?page=${page.value}&per_page=${
-  //     per_page.value
-  //   }&min_start_time=${
-  //     searchForm.start_time && searchForm.start_time.length > 0
-  //       ? searchForm.start_time[0]
-  //       : ""
-  //   }&max_start_time=${
-  //     searchForm.start_time && searchForm.start_time.length > 1
-  //       ? searchForm.start_time[1]
-  //       : ""
-  //   }&title=${searchForm.title}&state=${
-  //     searchForm.state
-  //   }&verify_destroy_state=${
-  //     searchForm.verify_destroy_state
-  //   }&alt=excel&token=${localStorage.getItem("token")}`,
-  //   "_blank"
-  // );
+  window.open(
+    `/apis/activity/list?page=${page.value}&per_page=${
+      per_page.value
+    }&min_start_time=${
+      searchForm.value.start_time && searchForm.value.start_time.length > 0
+        ? searchForm.value.start_time[0]
+        : ""
+    }&max_start_time=${
+      searchForm.value.start_time && searchForm.value.start_time.length > 1
+        ? searchForm.value.start_time[1]
+        : ""
+    }&title=${searchForm.value.title}&state=${
+      searchForm.value.state
+    }&verify_destroy_state=${
+      searchForm.value.verify_destroy_state
+    }&alt=excel&token=${localStorage.getItem("token")}`,
+    "_blank"
+  );
 };
 const handleSizeChange = (val: number) => {
   page.value = 1;
   per_page.value = val;
-  // getList();
+  getList();
 };
 const handleCurrentChange = (val: number) => {
   page.value = val;
-  // getList();
+  getList();
 };
 const onEdit = (id: number) => {
-  // window.open(`/backend/activity/new?id=${id}`, "_blank");
+  window.open(`/backend/activity/new?id=${id}`, "_blank");
 };
 const onQucode = (url: string) => {
-  // dialogVisible.value = true;
+  dialogVisible.value = true;
   qr_url.value = url;
 };
 const onVerify = (id: number) => {
-  // window.open(`/backend/activity/verify?id=${id}`, "_blank");
+  window.open(`/backend/activity/verify?id=${id}`, "_blank");
 };
 const onEnd = (id: number) => {
   turnVerifyDestroyState({ id }).then(() => {
     // message.success("标记成功");
     page.value = 1;
-    // getList();
+    getList();
   });
 };
 getList();

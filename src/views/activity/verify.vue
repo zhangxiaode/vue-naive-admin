@@ -15,12 +15,13 @@
       </n-form-item>
       <n-form-item label="活动开始时间：" path="start_time">
         <n-date-picker
-          v-model="searchForm.start_time"
+          v-model:value="searchForm.start_time"
           type="datetimerange"
           range-separator="至"
           start-placeholder="选择时间"
           end-placeholder="选择时间"
-          value-format="yyyy.MM.dd HH:mm:ss"
+          separator="至"
+          format="yyyy-MM-dd HH:mm:ss"
         />
       </n-form-item>
       <n-form-item>
@@ -64,8 +65,8 @@ import { getCodeList, verifyDestroy, patchawardCode } from "@/apis/index";
 // const message = useMessage()
 const route = useRoute();
 const searchRef = ref<FormInst | null>(null)
-let searchForm = reactive({
-  start_time: [],
+let searchForm: any = ref({
+  start_time: null,
   title: "",
   code: "",
 });
@@ -158,8 +159,7 @@ let columns = ref([
           link: true,
           size: "small",
           disabled: row.state != 0,
-          click: onVerify(row.id),
-          default: () => '核销' 
+          onClick: () => onVerify(row.id)
         }, '核销'),
       ]
     }
@@ -177,15 +177,15 @@ const getList = () => {
     per_page: per_page.value,
     activity_id: route.query.id || "",
     min_start_time:
-      searchForm.start_time && searchForm.start_time.length > 0
-        ? searchForm.start_time[0]
+      searchForm.value.start_time && searchForm.value.start_time.length > 0
+        ? new Date(searchForm.value.start_time[0]).toLocaleString().replaceAll("/", '-')
         : "",
     max_start_time:
-      searchForm.start_time && searchForm.start_time.length > 1
-        ? searchForm.start_time[1]
+      searchForm.value.start_time && searchForm.value.start_time.length > 1
+        ? new Date(searchForm.value.start_time[1]).toLocaleString().replaceAll("/", '-')
         : "",
-    title: searchForm.title,
-    code: searchForm.code,
+    title: searchForm.value.title,
+    code: searchForm.value.code,
   }).then((res: any) => {
     total.value = res.total;
     tableData.value = res.data;
@@ -194,11 +194,11 @@ const getList = () => {
 const handleSizeChange = (val: number) => {
   page.value = 1;
   per_page.value = val;
-  // getList();
+  getList();
 };
 const handleCurrentChange = (val: number) => {
   page.value = val;
-  // getList();
+  getList();
 };
 const onMultyVerify = () => {
   const selection = multipleSelection.value
@@ -207,15 +207,15 @@ const onMultyVerify = () => {
   if (selection.length === 0) {
     // message.error("请选择至少一个待核销记录");
   } else {
-    verifyDestroy({ id: selection.join(",") }).then(() => {
-      // message.success("核销成功");
-      // getList();
-    });
+    // verifyDestroy({ id: selection.join(",") }).then(() => {
+    //   // message.success("核销成功");
+    //   // getList();
+    // });
   }
 };
 const onReset = () => {
-  searchForm = {
-    start_time: [],
+  searchForm.value = {
+    start_time: null,
     title: "",
     code: "",
   }
@@ -226,34 +226,34 @@ const onExport = () => {
     `/apis/awardCode/list?page=${page.value}&per_page=${
       per_page.value
     }&activity_id=${route.query.id || ""}&min_start_time=${
-      searchForm.start_time && searchForm.start_time.length > 0
-        ? searchForm.start_time[0]
+      searchForm.value.start_time && searchForm.value.start_time.length > 0
+        ? searchForm.value.start_time[0]
         : ""
     }&max_start_time=${
-      searchForm.start_time && searchForm.start_time.length > 1
-        ? searchForm.start_time[1]
+      searchForm.value.start_time && searchForm.value.start_time.length > 1
+        ? searchForm.value.start_time[1]
         : ""
-    }&title=${searchForm.title}&code=${
-      searchForm.code
+    }&title=${searchForm.value.title}&code=${
+      searchForm.value.code
     }&alt=excel&token=${localStorage.getItem("token")}`,
     "_blank"
   );
 };
 const onSearch = () => {
   page.value = 1;
-  // getList();
+  getList();
 };
 const onVerify = (id: number) => {
-  verifyDestroy({ id }).then(() => {
-    // message.success("核销成功");
-    onSearch();
-  });
+  // verifyDestroy({ id }).then(() => {
+  //   // message.success("核销成功");
+  //   onSearch();
+  // });
 };
 const handleChangeRemark = (row: any) => {
-  patchawardCode({ id: row.id, remark: row.remark }).then(() => {
-    // message.success("备注编辑成功");
-    // getList();
-  });
+  // patchawardCode({ id: row.id, remark: row.remark }).then(() => {
+  //   // message.success("备注编辑成功");
+  //   // getList();
+  // });
 };
 getList();
 </script>

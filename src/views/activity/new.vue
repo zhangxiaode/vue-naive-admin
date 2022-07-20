@@ -16,55 +16,59 @@
         <n-date-picker
           :is-date-disabled="state == 1 || state == 2"
           :is-time-disabled="state == 1 || state == 2"
-          v-model="newForm.start_time"
+          v-model:value="newForm.start_time"
           type="datetime"
           placeholder="请选择开始时间"
-          value-format="yyyy.MM.dd HH:mm:ss"
+          format="yyyy.MM.dd HH:mm:ss"
         />
       </n-form-item>
       <n-form-item label="活动结束时间：" path="end_time">
         <n-date-picker
           :is-date-disabled="state == 2"
           :is-time-disabled="state == 2"
-          v-model="newForm.end_time"
+          v-model:value="newForm.end_time"
           type="datetime"
           placeholder="请选择结束时间"
-          value-format="yyyy.MM.dd HH:mm:ss"
+          format="yyyy.MM.dd HH:mm:ss"
         />
       </n-form-item>
       <n-form-item label="核销截止时间：" path="last_verify_destroy_time">
         <n-date-picker
           :is-date-disabled="state == 2"
           :is-time-disabled="state == 2"
-          v-model="newForm.last_verify_destroy_time"
+          v-model:value="newForm.last_verify_destroy_time"
           type="datetime"
           placeholder="请选择核销截止时间"
-          value-format="yyyy.MM.dd HH:mm:ss"
+          format="yyyy.MM.dd HH:mm:ss"
         />
       </n-form-item>
       <n-form-item label="抽奖人数上限：" path="max_user_num">
         <n-input :disabled="state == 1 || state == 2" v-model:value="newForm.max_user_num" placeholder="请输入抽奖人数上限" />
       </n-form-item>
       <n-form-item label="封面图：" path="cover_images">
-        <n-upload
-          :disabled="state == 1 || state == 2"
-          class="avatar-uploader"
-          action="http://upload.qiniup.com"
-          :headers="headers"
-          list-type="image-card"
-          multiple
-          :on-preview="handlePictureCardPreview"
-          :on-remove="handleRemove"
-          :file-list="fileList"
-          :data="uploadData"
-          :on-before-upload="beforePictureUpload"
-          :on-finish="handlePictureSuccess"
-        >
-          <n-icon class="avatar-uploader-icon">
-            <Add />
-          </n-icon>
-        </n-upload>
-        <n-alert class="warning" title="为保证最终效果，请上传长宽比为1:1，1M以内的素材图" type="success" :closable="false" />
+        <div>
+          <n-upload
+            :disabled="state == 1 || state == 2"
+            class="avatar-uploader"
+            action="https://upload.qiniup.com"
+            :headers="headers"
+            list-type="image-card"
+            multiple
+            :default-upload="true"
+            :file-list="fileList"
+            :data="uploadData"
+            @preview="handlePictureCardPreview"
+            @remove="handleRemove"
+            @before-upload="beforePictureUpload"
+            @error="handlePictureError"
+            @finish="handlePictureSuccess"
+          >
+            <n-icon class="avatar-uploader-icon" :size="32">
+              <Add />
+            </n-icon>
+          </n-upload>
+          <n-alert class="warning" title="为保证最终效果，请上传长宽比为1:1，1M以内的素材图" :show-icon="false" type="success" :closable="false" />
+        </div>
       </n-form-item>
       <n-form-item v-for="(award, index) in newForm.awards" :key="'awards.' + index + '.num'" :label="`奖品${index + 1}`" :path="'awards.' + index + '.num'">
         <div class="flex ai-center">
@@ -79,7 +83,7 @@
         <n-switch :disabled="state == 1 || state == 2" v-model:value="newForm.is_show_award_num" :checked-value="1" :unchecked-value="0" />
       </n-form-item>
       <n-form-item label="图文介绍（选填）：" path="introduce_type">
-        <div class="flex flex-column ai-normal">
+        <div class="lh-40 flex flex-column jc-start ai-normal">
           <n-radio-group v-model:value="newForm.introduce_type">
             <n-space>
               <n-radio :value="1">文字</n-radio>
@@ -91,26 +95,26 @@
             <n-upload
               v-else
               class="avatar-uploader"
-              action="http://upload.qiniup.com"
+              action="https://upload.qiniup.com"
               :data="uploadData"
               :show-file-list="false"
-              :on-before-upload="beforeAvatarUpload"
-              :on-finish="handleAvatarSuccess"
+              @before-upload="beforeAvatarUpload"
+              @finish="handleAvatarSuccess"
             >
               <img
                 v-if="newForm.pictures && newForm.pictures != ''"
                 :src="newForm.pictures"
                 class="avatar"
               />
-              <n-icon v-else class="avatar-uploader-icon">
+              <n-icon v-else class="avatar-uploader-icon" :size="32">
                 <Add />
               </n-icon>
             </n-upload>
           </div>
         </div>
       </n-form-item>
-      <n-form-item class="btns">
-        <n-button @click="onCancel()">取消</n-button>
+      <n-form-item label=" " class="btns">
+        <n-button class="m-0-5" @click="onCancel()">取消</n-button>
         <n-button type="primary" @click="onSubmit()">保存</n-button>
       </n-form-item>
     </n-form>
@@ -123,8 +127,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { FormInst, useMessage } from 'naive-ui'
-import type { UploadFileInfo } from 'naive-ui'
+import { FormInst, useMessage, UploadFileInfo } from 'naive-ui'
 import { Add } from '@vicons/ionicons5'
 import {
   getUploadToken,
@@ -151,9 +154,9 @@ const headers = reactive({
 });
 const newForm = reactive({
   title: "",
-  start_time: "",
-  end_time: "",
-  last_verify_destroy_time: "",
+  start_time: null,
+  end_time: null,
+  last_verify_destroy_time: null,
   max_user_num: "",
   cover_images: [],
   awards: [
@@ -197,15 +200,13 @@ const newRules = {
     { required: true, message: "封面图不能为空", trigger: "blur change" },
   ],
 };
-const handleRemove: Promise<boolean> | boolean | any = () => {
+const handleRemove = () => {
   newForm.cover_images = fileList.value.map((item: any) =>
-    item.percentage
-      ? "https://ommdq027l.qnssl.com/" + item.response.key
-      : item.url
+    item.percentage ? "https://ommdq027l.qnssl.com/" + item.response.key : item.url
   ) as any;
 };
 
-const handlePictureCardPreview: void = (uploadFile: any) => {
+const handlePictureCardPreview = (uploadFile: UploadFileInfo) => {
   dialogImageUrl.value = uploadFile.url!;
   dialogVisible.value = true;
 };
@@ -222,30 +223,26 @@ const removeAward = (index: number) => {
   }
 };
 
-const beforePictureUpload: Promise<boolean | void> | boolean | void = (rawFile: any) => {
+const beforePictureUpload = (e: any) => {
   uploadData.value.key = `${Math.random()
     .toString(36)
-    .slice(-10)}_${Date.now()}_${rawFile.name}`;
-  if (rawFile.size / 1024 / 1024 > 1) {
+    .slice(-10)}_${Date.now()}_${e.file.file.name}`;
+  if (e.file.file.size / 1024 / 1024 > 1) {
     message.error("图片应在1MB以内!");
-    return false;
   }
-  return true;
 };
-const handlePictureSuccess: UploadFileInfo | undefined = () => {
+const handlePictureError = (e: any) => {
+  console.log(222)
+};
+const handlePictureSuccess = () => {
   newForm.cover_images = fileList.value.map((item: any) =>
-    item.percentage
-      ? "https://ommdq027l.qnssl.com/" + item.response.key
-      : item.url
+    item.percentage ? "https://ommdq027l.qnssl.com/" + item.response.key : item.url
   ) as any;
 };
-const beforeAvatarUpload: Promise<boolean | void> | boolean | void = (rawFile: any) => {
-  uploadData.value.key = `${Math.random()
-    .toString(36)
-    .slice(-10)}_${Date.now()}_${rawFile.name}`;
-  return true;
+const beforeAvatarUpload = (e: any) => {
+  uploadData.value.key = `${Math.random().toString(36).slice(-10)}_${Date.now()}_${e.file.file.name}`;
 };
-const handleAvatarSuccess: UploadFileInfo | undefined = (response: any) => {
+const handleAvatarSuccess = (response: any) => {
   newForm.pictures = "https://ommdq027l.qnssl.com/" + response.key;
 };
 
@@ -316,6 +313,7 @@ init();
 .activity-new {
   height: 100%;
   overflow: auto;
+  text-align: left;
   .newForm {
     max-width: 800px;
   }
@@ -324,24 +322,27 @@ init();
   }
 
   :deep(.avatar-uploader) {
-    .el-upload {
-      border: 1px dashed var(--el-border-color);
+    .n-upload-trigger {
+      border: 1px dashed rgb(224, 224, 230);
+      background: rgb(250, 250, 252);
       border-radius: 6px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: var(--el-transition-duration-fast);
+      transition: opacity .3s cubic-bezier(0.4, 0, 0.2, 1), border-color .3s cubic-bezier(0.4, 0, 0.2, 1), background-color .3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .el-upload:hover {
-      border-color: var(--el-color-primary);
+    .n-upload-trigger:hover {
+      border-color: rgb(224, 224, 230);
     }
 
-    .el-icon.avatar-uploader-icon {
+    .n-icon.avatar-uploader-icon {
       color: #8c939d;
       width: 148px;
       height: 148px;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       svg {
         font-size: 28px;
       }
@@ -354,5 +355,8 @@ init();
 }
 .m-0-5 {
   margin: 0 5px;
+}
+.lh-40 {
+  line-height: 40px;
 }
 </style>
