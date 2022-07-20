@@ -7,8 +7,8 @@
       :width="200"
       :collapsed="collapse"
       show-trigger
-      @collapse="collapse = true"
-      @expand="collapse = false">
+      @collapse="changeCollapse"
+      @expand="changeCollapse">
       <PageAside />
     </n-layout-sider>
     <n-layout class="flex-1 flex ai-normal overflow-hidden">
@@ -21,12 +21,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import store from '../store/base'
+import { computed, ref } from "vue";
+import { baseStore } from "@/store/index";
 import PageHeader from "./pageHeader.vue";
 import PageAside from "./pageAside.vue";
-const collapse = ref(false);
-console.log(112, store)
+const collapse = computed(() => baseStore().collapse);
+const changeCollapse = () => {
+  baseStore().changeCollapse()
+};
 </script>
 
 <style lang="scss" scoped>

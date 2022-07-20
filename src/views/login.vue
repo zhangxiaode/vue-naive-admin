@@ -63,7 +63,6 @@ const onReset = () => {
     username: "",
     password: "",
   }
-  console.log(loginRef)
   // loginRef.resetFields();
 };
 </script>

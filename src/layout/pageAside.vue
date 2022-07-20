@@ -8,26 +8,27 @@
     <n-menu
       class="flex-1"
       accordion
+      :value="route.path"
       :indent="18"
       :collapsed="collapse"
       :collapsed-icon-size="24"
       :collapsed-width="64"
       :options="permission"
+      @update:value="switchPage"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, h, Component } from "vue";
+import { computed, ref, h, Component } from "vue";
 import { useRoute, useRouter, RouteRecordRaw } from "vue-router";
 import { NIcon } from 'naive-ui'
 import { BookOutline } from '@vicons/ionicons5'
-// import store from "@/store";
+import { baseStore } from "@/store/index";
 const route = useRoute();
 const router = useRouter();
 
-const collapse = false;
-// const collapse = computed(() => store.getters.collapse === "1");
+const collapse = computed(() => baseStore().collapse);
 function renderIcon (icon: Component){
   return () => h(NIcon, null, { default: () => h(icon) })
 } 
@@ -38,36 +39,43 @@ const permission = computed(() => {
       let children: Array<any> = [];
       if (item.children && item.children.length > 0) {
         item.children.map((child: any) => {
-          children.push({
+          if(!(child.meta.hidden === true)) {
+            children.push({
+              key: `${item.path}/${child.path}`,
+              label: child.meta.title,
+              icon: child.meta.icon ? child.meta.icon : null,
+              hidden: child.meta.hidden ? child.meta.hidden : null,
+            });
+          }
+        });
+      }
+      if(!(item.meta.hidden === true)) {
+        permission.push({
+          key: item.path,
+          label: item.meta.title,
+          icon: item.meta.icon ? renderIcon(BookOutline) : null,
+          hidden: item.meta.hidden ? item.meta.hidden : null,
+          children,
+        });
+      }
+    } else if (item.children && item.children.length > 0) {
+      item.children.map((child: any) => {
+        if(!(child.meta.hidden === true)) {
+          permission.push({
             key: `${item.path}/${child.path}`,
             label: child.meta.title,
             icon: child.meta.icon ? child.meta.icon : null,
             hidden: child.meta.hidden ? child.meta.hidden : null,
           });
-        });
-      }
-      permission.push({
-        key: item.path,
-        label: item.meta.title,
-        icon: item.meta.icon ? renderIcon(BookOutline) : null,
-        hidden: item.meta.hidden ? item.meta.hidden : null,
-        children,
-      });
-    } else if (item.children && item.children.length > 0) {
-      item.children.map((child: any) => {
-        permission.push({
-          key: `${item.path}/${child.path}`,
-          label: child.meta.title,
-          icon: child.meta.icon ? child.meta.icon : null,
-          hidden: child.meta.hidden ? child.meta.hidden : null,
-        });
+        }
       });
     }
   });
-  console.log(permission)
   return permission;
 });
-const defaultActive = computed(() => route.path);
+const switchPage = (e: string) => {
+  router.push(e);
+}
 const homeUrlFun = () => {
   router.push("/activity/list");
 };

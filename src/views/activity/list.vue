@@ -2,6 +2,7 @@
   <div class="content activity-list">
     <n-form
       ref="searchRef"
+      label-placement="left"
       :inline="true"
       :model="searchForm"
       class="searchForm"
@@ -20,7 +21,7 @@
         <n-input v-model="searchForm.title" placeholder="请输入活动名称" />
       </n-form-item>
       <n-form-item label="活动状态：" path="state">
-        <n-select v-model="searchForm.state" :options="[
+        <n-select v-model="searchForm.state" class="w-200" :options="[
           {
             label: '全部',
             value: ''
@@ -40,7 +41,7 @@
         ]" placeholder="请选择活动状态" />
       </n-form-item>
       <n-form-item label="核销状态：" path="verify_destroy_state">
-        <n-select v-model="searchForm.verify_destroy_state" :options="[
+        <n-select v-model="searchForm.verify_destroy_state" class="w-200" :options="[
           {
             label: '全部',
             value: ''
@@ -78,7 +79,7 @@
       </n-form-item>
     </n-form>
     <div class="cont">
-      <n-data-table bordered :columns="columns" :data="tableData" />
+      <n-data-table :single-line="false" :columns="columns" :data="tableData" />
       <n-pagination
         class="pager"
         v-model:page="page"
@@ -87,8 +88,8 @@
         :item-count="total"
         show-quick-jumper
         show-size-picker
-        on-update:page="handleCurrentChange"
-        on-update:page-size="handleSizeChange"
+        @update:page="handleCurrentChange"
+        @update:page-size="handleSizeChange"
       />
     </div>
     <n-modal v-model:show="dialogVisible" transform-origin="center">
@@ -98,19 +99,18 @@
 </template>
 
 <script lang="ts" setup>
-import { h, ref } from "vue";
+import { h, ref, reactive } from "vue";
 import { NButton, FormInst } from 'naive-ui'
 import { Add, DownloadOutline } from '@vicons/ionicons5'
 import { getActivity, turnVerifyDestroyState } from "@/apis/index";
 // const message = useMessage()
 const searchRef = ref<FormInst | null>(null)
-const searchForm = ref({
+let searchForm = reactive({
   start_time: [],
   title: "",
   state: "",
   verify_destroy_state: "",
 });
-
 let page = ref(1);
 let per_page = ref(10);
 let total = ref(4);
@@ -174,55 +174,48 @@ let columns = ref([
   {
     title: '操作',
     key: 'actions',
-    minWidth: 280,
+    minWidth: 340,
     render (row: any) {
-      console.log(row)
       return [
         h(NButton, { 
-          props: {
-            link: true,
-            type: "primary",
-            size: "small"
-          },
+          type: 'primary',
+          link: true,
+          quaternary: true,
+          size: "small",
           click: onEdit(row.id),
           default: () => '编辑' 
-        }),
+        }, '编辑' ),
         h(NButton, { 
-          props: {
-            link: true,
-            type: "primary",
-            size: "small",
-            disabled: !row.qr_url
-          },
+          type: 'primary',
+          link: true,
+          quaternary: true,
+          size: "small",
+          disabled: !row.qr_url,
           click: onQucode(row.qr_url),
           default: () => '二维码路径' 
-        }),
+        }, '二维码路径' ),
         h(NButton, { 
-          props: {
-            link: true,
-            type: "primary",
-            size: "small"
-          },
+          type: 'primary',
+          link: true,
+          quaternary: true,
+          size: "small",
           click: onVerify(row.id),
           default: () => '核销' 
-        }),
+        }, '核销'),
         h(NButton, { 
-          props: {
-            link: true,
-            type: "primary",
-            size: "small"
-          },
+          type: 'primary',
+          link: true,
+          quaternary: true,
+          size: "small",
           click: onEnd(row.id),
           default: h(
             'span',
             {
-              props: {
-                class: row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd'
-              },
+              class: row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd',
               default: () => row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束"
             }
           ) 
-        })
+        }, row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束")
       ]
     }
   }
@@ -235,16 +228,16 @@ const getList = () => {
     page: page.value,
     per_page: per_page.value,
     min_start_time:
-      searchForm.value.start_time && searchForm.value.start_time.length > 0
-        ? searchForm.value.start_time[0]
+      searchForm.start_time && searchForm.start_time.length > 0
+        ? searchForm.start_time[0]
         : "",
     max_start_time:
-      searchForm.value.start_time && searchForm.value.start_time.length > 1
-        ? searchForm.value.start_time[1]
+      searchForm.start_time && searchForm.start_time.length > 1
+        ? searchForm.start_time[1]
         : "",
-    title: searchForm.value.title,
-    state: searchForm.value.state,
-    verify_destroy_state: searchForm.value.verify_destroy_state,
+    title: searchForm.title,
+    state: searchForm.state,
+    verify_destroy_state: searchForm.verify_destroy_state,
   }).then((res: any) => {
     total.value = res.total;
     tableData.value = res.data;
@@ -258,7 +251,7 @@ const onCreate = () => {
   // window.open(`/backend/activity/new`, "_blank");
 };
 const onReset = () => {
-  searchForm.value = {
+  searchForm = {
     start_time: [],
     title: "",
     state: "",
@@ -271,17 +264,17 @@ const onExport = () => {
   //   `/apis/activity/list?page=${page.value}&per_page=${
   //     per_page.value
   //   }&min_start_time=${
-  //     searchForm.value.start_time && searchForm.value.start_time.length > 0
-  //       ? searchForm.value.start_time[0]
+  //     searchForm.start_time && searchForm.start_time.length > 0
+  //       ? searchForm.start_time[0]
   //       : ""
   //   }&max_start_time=${
-  //     searchForm.value.start_time && searchForm.value.start_time.length > 1
-  //       ? searchForm.value.start_time[1]
+  //     searchForm.start_time && searchForm.start_time.length > 1
+  //       ? searchForm.start_time[1]
   //       : ""
-  //   }&title=${searchForm.value.title}&state=${
-  //     searchForm.value.state
+  //   }&title=${searchForm.title}&state=${
+  //     searchForm.state
   //   }&verify_destroy_state=${
-  //     searchForm.value.verify_destroy_state
+  //     searchForm.verify_destroy_state
   //   }&alt=excel&token=${localStorage.getItem("token")}`,
   //   "_blank"
   // );
@@ -299,7 +292,7 @@ const onEdit = (id: number) => {
   // window.open(`/backend/activity/new?id=${id}`, "_blank");
 };
 const onQucode = (url: string) => {
-  dialogVisible.value = true;
+  // dialogVisible.value = true;
   qr_url.value = url;
 };
 const onVerify = (id: number) => {
@@ -316,10 +309,16 @@ getList();
 </script>
 
 <style lang="scss" scoped>
+.searchForm {
+  flex-wrap: wrap;
+}
 .noEnd {
   color: #f56c6c;
 }
 .isEnd {
   color: #67c23a;
+}
+.w-200 {
+  width: 200px;
 }
 </style>

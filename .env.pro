@@ -1,2 +1,2 @@
-NODE_ENV = "development"
-VITE_BASE_API = "http://koala.sigcms.com"
+NODE_ENV = "production"
+VITE_BASE_API = "https://koala.xingshuba.com"

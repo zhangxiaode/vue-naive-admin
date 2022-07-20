@@ -2,6 +2,7 @@
   <div class="content activity-verify">
     <n-form
       ref="searchRef"
+      label-placement="left"
       :inline="true"
       :model="searchForm"
       class="searchForm"
@@ -33,27 +34,22 @@
       </n-form-item>
       <n-form-item>
         <n-button :icon="DownloadOutline" @click="onExport">
-          <template #icon>
-            <n-icon>
-              <file-download-filled />
-            </n-icon>
-          </template>
           导出
         </n-button>
       </n-form-item>
     </n-form>
     <div class="cont">
-      <n-data-table bordered :columns="columns" :data="tableData" />
+      <n-data-table :single-line="false" :columns="columns" :data="tableData" />
       <n-pagination
         class="pager"
         v-model:page="page"
-        :page-count="per_page"
+        :page-size="per_page"
         :page-sizes="[10, 20, 30, 40]"
         :item-count="total"
         show-quick-jumper
         show-size-picker
-        on-update:page="handleCurrentChange"
-        on-update:page-size="handleSizeChange"
+        @update:page="handleCurrentChange"
+        @update:page-size="handleSizeChange"
       />
     </div>
   </div>
@@ -65,10 +61,10 @@ import { useRoute } from "vue-router";
 import { NButton, NInput, FormInst, useMessage } from 'naive-ui'
 import { DownloadOutline } from '@vicons/ionicons5'
 import { getCodeList, verifyDestroy, patchawardCode } from "@/apis/index";
-const message = useMessage()
+// const message = useMessage()
 const route = useRoute();
 const searchRef = ref<FormInst | null>(null)
-const searchForm = reactive({
+let searchForm = reactive({
   start_time: [],
   title: "",
   code: "",
@@ -82,7 +78,7 @@ let columns = ref([
   {
     type: 'selection',
     title: '全选',
-    key: 'title',
+    key: 'selection',
     align: 'center',
     minWidth: 55
   },
@@ -157,16 +153,14 @@ let columns = ref([
     render (row: any) {
       return [
         h(NButton, { 
-          props: {
-            quaternary: true,
-            link: true,
-            type: "primary",
-            size: "small",
-            disabled: row.state != 0
-          },
+          type: 'primary',
+          quaternary: true,
+          link: true,
+          size: "small",
+          disabled: row.state != 0,
           click: onVerify(row.id),
           default: () => '核销' 
-        })
+        }, '核销'),
       ]
     }
   }
@@ -200,27 +194,31 @@ const getList = () => {
 const handleSizeChange = (val: number) => {
   page.value = 1;
   per_page.value = val;
-  getList();
+  // getList();
 };
 const handleCurrentChange = (val: number) => {
   page.value = val;
-  getList();
+  // getList();
 };
 const onMultyVerify = () => {
   const selection = multipleSelection.value
     .filter((item: any) => item.state == 0)
     .map((item: any) => item.id);
   if (selection.length === 0) {
-    message.error("请选择至少一个待核销记录");
+    // message.error("请选择至少一个待核销记录");
   } else {
     verifyDestroy({ id: selection.join(",") }).then(() => {
-      message.success("核销成功");
-      getList();
+      // message.success("核销成功");
+      // getList();
     });
   }
 };
 const onReset = () => {
-  console.log(searchRef)
+  searchForm = {
+    start_time: [],
+    title: "",
+    code: "",
+  }
   onSearch();
 };
 const onExport = () => {
@@ -243,21 +241,25 @@ const onExport = () => {
 };
 const onSearch = () => {
   page.value = 1;
-  getList();
+  // getList();
 };
 const onVerify = (id: number) => {
   verifyDestroy({ id }).then(() => {
-    message.success("核销成功");
+    // message.success("核销成功");
     onSearch();
   });
 };
 const handleChangeRemark = (row: any) => {
   patchawardCode({ id: row.id, remark: row.remark }).then(() => {
-    message.success("备注编辑成功");
-    getList();
+    // message.success("备注编辑成功");
+    // getList();
   });
 };
 getList();
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.searchForm {
+  flex-wrap: wrap;
+}
+</style>

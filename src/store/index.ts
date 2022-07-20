@@ -1,9 +1,1 @@
-import { createPinia } from 'pinia'
-import baseStore from './base'
-
-export function useStore() {
-  return {
-    base: baseStore()
-  }
-}
-export default createPinia()
+export const baseStore = import.meta.globEager('./base.ts')['./base.ts'].default

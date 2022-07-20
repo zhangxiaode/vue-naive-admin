@@ -2,11 +2,11 @@
   <div class="activity-new">
     <n-form
       ref="newRef"
+      label-placement="left"
+      label-width="180px"
+      size="large"
       :model="newForm"
       :rules="newRules"
-      label-width="180px"
-      :size="ref('large')"
-      :label-placement="ref('right')"
       class="newForm"
     >
       <n-form-item label="活动名称：" path="title">
