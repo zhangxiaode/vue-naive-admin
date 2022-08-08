@@ -80,8 +80,8 @@
         </n-form-item>
       </n-form>
       <div class="flex flex-column flex-1 overflow-hidden cont">
-        <div class="flex-1" style="overflow: auto">
-          <n-data-table max-height="100%" flex-height virtual-scroll :single-line="false" :columns="columns" :data="tableData" />
+        <div class="flex-1">
+          <n-data-table style="height: 100%;" flex-height :single-line="false" :columns="columns" :data="tableData" />
         </div>
         <n-pagination
           class="pager"
@@ -217,7 +217,18 @@ let columns = ref([
     }
   }
 ]);
-let tableData = ref([]);
+let tableData = ref([
+  {
+    title: '1',
+    start_time: '2022/02/02',
+    end_time: '2022/02/02',
+    last_verify_destroy_time: '2022/02/02',
+    awards: [{name: '奖品', num: 2}],
+    max_user_num: 10,
+    state: 1,
+    verify_destroy_state: 0
+  }
+]);
 let dialogVisible = ref(false);
 let qr_url = ref("");
 const getList = () => {
@@ -234,7 +245,7 @@ const getList = () => {
         : null,
     title: searchForm.value.title,
     state: searchForm.value.state,
-    verify_destroy_state: searchForm.value.verify_destroy_state,
+    verify_destroy_state: searchForm.value.verify_destroy_state
   }).then((res: any) => {
     total.value = res.total;
     tableData.value = res.data;
