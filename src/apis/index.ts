@@ -39,7 +39,7 @@ export function getActivity(params: any) {
   return request({
     url: `/activity/list`,
     method: "get",
-    params,
+    params
   });
 }
 

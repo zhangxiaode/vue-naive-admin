@@ -40,7 +40,7 @@
       </n-form-item>
     </n-form>
     <div class="cont">
-      <n-data-table :single-line="false" :columns="columns" :data="tableData" />
+      <n-data-table :row-key="() => 'id'" :single-line="false" :columns="columns" :data="tableData" />
       <n-pagination
         class="pager"
         v-model:page="page"
@@ -57,12 +57,12 @@
 </template>
 
 <script lang="ts" setup>
-import { h, reactive, ref } from "vue";
+import { h, ref } from "vue";
 import { useRoute } from "vue-router";
 import { NButton, NInput, FormInst, useMessage } from 'naive-ui'
 import { DownloadOutline } from '@vicons/ionicons5'
 import { getCodeList, verifyDestroy, patchawardCode } from "@/apis/index";
-// const message = useMessage()
+const message = useMessage()
 const route = useRoute();
 const searchRef = ref<FormInst | null>(null)
 let searchForm: any = ref({
@@ -131,7 +131,7 @@ let columns = ref([
             value: row.remark,
             placeholder: "请添加备注"
           },
-          blur: handleChangeRemark(row),
+          blur: () => handleChangeRemark(row),
           default: () => '核销' 
         })
       ]
@@ -160,7 +160,7 @@ let columns = ref([
           size: "small",
           disabled: row.state != 0,
           onClick: () => onVerify(row.id)
-        }, '核销'),
+        }, () => '核销'),
       ]
     }
   }
@@ -205,12 +205,12 @@ const onMultyVerify = () => {
     .filter((item: any) => item.state == 0)
     .map((item: any) => item.id);
   if (selection.length === 0) {
-    // message.error("请选择至少一个待核销记录");
+    message.error("请选择至少一个待核销记录");
   } else {
-    // verifyDestroy({ id: selection.join(",") }).then(() => {
-    //   // message.success("核销成功");
-    //   // getList();
-    // });
+    verifyDestroy({ id: selection.join(",") }).then(() => {
+      message.success("核销成功");
+      getList();
+    });
   }
 };
 const onReset = () => {
@@ -244,16 +244,16 @@ const onSearch = () => {
   getList();
 };
 const onVerify = (id: number) => {
-  // verifyDestroy({ id }).then(() => {
-  //   // message.success("核销成功");
-  //   onSearch();
-  // });
+  verifyDestroy({ id }).then(() => {
+    message.success("核销成功");
+    onSearch();
+  });
 };
 const handleChangeRemark = (row: any) => {
-  // patchawardCode({ id: row.id, remark: row.remark }).then(() => {
-  //   // message.success("备注编辑成功");
-  //   // getList();
-  // });
+  patchawardCode({ id: row.id, remark: row.remark }).then(() => {
+    message.success("备注编辑成功");
+    getList();
+  });
 };
 getList();
 </script>

@@ -19,6 +19,7 @@ export default ({ mode }) => defineConfig({
     port: 8080,
     https: false,
     open: false,
+    hmr: true,
     proxy: {
       "/apis": {
         target:  loadEnv(mode, process.cwd()).VITE_APP_BASE_API,

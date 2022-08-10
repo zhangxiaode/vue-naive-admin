@@ -1,7 +1,9 @@
 <template>
   <n-config-provider :locale="zhCN" :date-locale="dateZhCN" class="h-100" >
     <n-message-provider>
-      <router-view />
+      <n-loading-bar-provider>
+        <router-view />
+      </n-loading-bar-provider>
     </n-message-provider>
   </n-config-provider>
 </template>

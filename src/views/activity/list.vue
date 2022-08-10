@@ -81,7 +81,7 @@
       </n-form>
       <div class="flex flex-column flex-1 overflow-hidden cont">
         <div class="flex-1">
-          <n-data-table style="height: 100%;" flex-height :single-line="false" :columns="columns" :data="tableData" />
+          <n-data-table :row-key="() => 'id'" style="height: 100%;" flex-height :single-line="false" :columns="columns" :data="tableData" />
         </div>
         <n-pagination
           class="pager"
@@ -184,7 +184,7 @@ let columns = ref([
           quaternary: true,
           size: "small",
           onClick: () => onEdit(row.id)
-        }, '编辑' ),
+        }, () => '编辑' ),
         h(NButton, { 
           type: 'primary',
           link: true,
@@ -192,26 +192,26 @@ let columns = ref([
           size: "small",
           disabled: !row.qr_url,
           onClick: () => onQucode(row.qr_url),
-        }, '二维码路径' ),
+        }, () => '二维码路径' ),
         h(NButton, { 
           type: 'primary',
           link: true,
           quaternary: true,
           size: "small",
           onClick: () => onVerify(row.id)
-        }, '核销'),
+        }, () => '核销'),
         h(NButton, { 
           type: 'primary',
           link: true,
           quaternary: true,
           size: "small",
           onClick: () => onEnd(row.id)
-        }, h(
+        }, () => h(
           'span',
           {
             class: row.verify_destroy_state == 0 ? 'noEnd' : 'isEnd'
           },
-          row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束"
+          () => row.verify_destroy_state == 0 ? "标记核销已结束" : "标记核销未结束"
         ))
       ]
     }
@@ -308,7 +308,7 @@ const onVerify = (id: number) => {
 };
 const onEnd = (id: number) => {
   turnVerifyDestroyState({ id }).then(() => {
-    // message.success("标记成功");
+    message.success("标记成功");
     page.value = 1;
     getList();
   });

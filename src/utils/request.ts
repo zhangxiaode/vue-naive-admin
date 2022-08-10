@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AxiosInstance, AxiosRequestConfig } from "axios";
-import { useMessage } from 'naive-ui'
-const message = useMessage()
+import { createDiscreteApi } from 'naive-ui'
+const { message, loadingBar } = createDiscreteApi(['message', 'loadingBar'])
 
 const service: AxiosInstance = axios.create({
   baseURL: "http://koala.sigcms.com/apis",
@@ -42,13 +42,9 @@ service.interceptors.response.use(
 );
 
 // 封装axios---------------------------------------
-function apiAxios(httpDefault: AxiosRequestConfig, isLoad = false) {
+function apiAxios(httpDefault: AxiosRequestConfig) {
   return new Promise((resolve, reject) => {
-    let loadingInstance: any = null;
-    if (isLoad) {
-      loadingInstance = message.loading('...');
-    }
-    isLoad && message.destroyAll();
+    loadingBar.start()
     service(httpDefault)
       .then((response: any) => {
         switch (response.status_code) {
@@ -64,9 +60,7 @@ function apiAxios(httpDefault: AxiosRequestConfig, isLoad = false) {
         reject(error);
       })
       .finally(() => {
-        if (isLoad && loadingInstance) {
-          loadingInstance.close();
-        }
+        loadingBar.finish()
       });
   });
 }
