@@ -18,7 +18,7 @@ const routes: Array<RouteRecordRaw> = [
     redirect: "/activity/list",
     meta: {
       title: "活动管理",
-      icon: "../assets/activity.svg",
+      icon: "/backend/src/assets/activity.svg",
       code: "ACTIVITY",
     },
     children: [

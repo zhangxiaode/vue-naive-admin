@@ -14,27 +14,30 @@
       :collapsed-icon-size="24"
       :collapsed-width="64"
       :options="permission"
+      :render-icon="renderIcon"
       @update:value="switchPage"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, h, Component } from "vue";
-import { useRoute, useRouter, RouteRecordRaw } from "vue-router";
-import { NIcon } from 'naive-ui'
-import { BookOutline } from '@vicons/ionicons5'
+import { computed, h } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { baseStore } from "@/store/index";
-const route = useRoute();
 const router = useRouter();
+const route = useRoute();
 
 const collapse = computed(() => baseStore().collapse);
-function renderIcon (icon: Component){
-  return () => h(NIcon, null, { default: () => h(icon) })
+function renderIcon (icon: any){
+  if(icon && icon.icon()) {
+    return h('img', { src: icon.icon(), class: 'menuIcon' })
+  } else {
+    return null
+  }
 } 
 const permission = computed(() => {
   let permission: Array<any> = [];
-  router.options.routes.map((item: RouteRecordRaw) => {
+  router.options.routes.map((item: any) => {
     if (item.meta && item.meta.title) {
       let children: Array<any> = [];
       if (item.children && item.children.length > 0) {
@@ -43,7 +46,7 @@ const permission = computed(() => {
             children.push({
               key: `${item.path}/${child.path}`,
               label: child.meta.title,
-              icon: child.meta.icon ? child.meta.icon : null,
+              icon: () => child.meta.icon ? child.meta.icon : null,
               hidden: child.meta.hidden ? child.meta.hidden : null,
             });
           }
@@ -53,7 +56,7 @@ const permission = computed(() => {
         permission.push({
           key: item.path,
           label: item.meta.title,
-          icon: item.meta.icon ? renderIcon(BookOutline) : null,
+          icon: () => item.meta.icon ? item.meta.icon : null,
           hidden: item.meta.hidden ? item.meta.hidden : null,
           children,
         });
@@ -64,7 +67,7 @@ const permission = computed(() => {
           permission.push({
             key: `${item.path}/${child.path}`,
             label: child.meta.title,
-            icon: child.meta.icon ? child.meta.icon : null,
+            icon: () => child.meta.icon ? child.meta.icon : null,
             hidden: child.meta.hidden ? child.meta.hidden : null,
           });
         }
@@ -157,74 +160,9 @@ const homeUrlFun = () => {
       }
     }
   }
-
-
-  // .n-submenu .n-menu-item-content-header {
-  //   color: #ffffff !important;
-  // }
-  // .n-submenu .n-menu-item-content__arrow {
-  //   color: #ffffff !important;
-  // }
-  // .n-menu-item,
-  // .n-menu-item-content-header,
-  // .n-submenu-children .n-menu-item {
-  //   height: 40px;
-  //   line-height: 40px;
-  //   margin: 8px 0;
-  // }
-  // .n-menu-item .n-menu-item-content:hover {
-  //   background: #363b51;
-  // }
-  // .n-menu-item,
-  // .n-menu-item-content:hover {
-  //   background: none;
-  // }
-  // .n-menu-item .n-menu-item-content:hover {
-  //   background: none;
-  // }
-  // .n-submenu-children .n-menu-item .n-menu-item-content:hover {
-  //   color: #04ffff;
-  //   background: #40455b;
-  // }
-  // .n-menu-item,
-  // .n-menu-item-content-header {
-  //   margin: 0;
-  // }
-  // .n-submenu {
-  //   margin: 8px 0;
-  // }
-  // .n-menu-item {
-  //   background: none;
-  // }
-  // .n-submenu .n-submenu-children {
-  //   background: #363b51;
-  // }
-  // .n-submenu.is-active .n-menu-item-content-header {
-  //   color: #04ffff !important;
-  //   i {
-  //     color: #04ffff !important;
-  //   }
-  // }
-  // .n-submenu .n-menu-item .n-menu-item-content--selected {
-  //   background: #40455b;
-  //   border-right: solid 2px #40455b;
-  //   &:before {
-  //     content: "";
-  //     position: absolute;
-  //     left: 0;
-  //     top: 0;
-  //     width: 4px;
-  //     height: 40px;
-  //     background: #40455b;
-  //     border-top-right-radius: 6px;
-  //     border-bottom-right-radius: 6px;
-  //   }
-  // }
-  // .n-menu-item-content__icon {
-  //   margin-right: 6px;
-  //   width: 24px;
-  //   height: 24px;
-  //   color: #fff;
-  // }
+  .menuIcon {
+    width: 24px;
+    height: 24px;
+  }
 }
 </style>
